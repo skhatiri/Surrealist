@@ -1,0 +1,13 @@
+git+https://github.com/skhatiri/Aerialist.git
+# similaritymeasures
+# matplotlib
+# pyulog
+# mavsdk
+# keyboard
+# python-decouple
+# csv-logger
+# statsmodels
+# webdavclient3
+# ruptures
+# shapely
+
