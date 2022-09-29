@@ -4,26 +4,33 @@ import logging
 import os
 import sys
 from decouple import config
-from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
-from aerialist.px4.command import Command
+from aerialist.px4.drone_test import (
+    AssertionConfig,
+    DroneConfig,
+    DroneTest,
+    SimulationConfig,
+    TestConfig,
+)
 
 try:
-    from .search.command_projector_search import CommandProjectorSearch
-    from .search.command_solution import CommandSolution
-    from .search.command_segment_search import CommandSegmentSearch
+    # from .search.command_projector_search import CommandProjectorSearch
+    # from .search.command_solution import CommandSolution
+    # from .search.command_segment_search import CommandSegmentSearch
     from .search.obstacle2_search import Obstacle2Search
     from .search.obstacle2_solution import Obstacle2Solution
     from .search.obstacle_search import ObstacleSearch
     from .search.obstacle_solution import ObstacleSolution
+    from .search.search import Search
 except:
-    from search.command_projector_search import CommandProjectorSearch
-    from search.command_solution import CommandSolution
-    from search.command_segment_search import CommandSegmentSearch
+    # from search.command_projector_search import CommandProjectorSearch
+    # from search.command_solution import CommandSolution
+    # from search.command_segment_search import CommandSegmentSearch
     from search.obstacle2_search import Obstacle2Search
     from search.obstacle2_solution import Obstacle2Solution
     from search.obstacle_search import ObstacleSearch
     from search.obstacle_solution import ObstacleSolution
+    from search.search import Search
 
 
 logger = logging.getLogger(__name__)
@@ -31,128 +38,183 @@ logger = logging.getLogger(__name__)
 
 def arg_parse():
     parser = ArgumentParser(
-        description="Comunicate with and send control commands to drones"
+        description="Search for best simulation-based test configurations to replicate the field test scenario"
     )
-    parser.add_argument(
-        "-e",
-        "--env",
-        default=config("SIMULATOR", default="gazebo"),
-        choices=["gazebo", "jmavsim", "avoidance"],
-        help="the simulator environment to run",
-    )
+    parser.add_argument("--seed", default=None, help="seed test description yaml file")
 
-    parser.add_argument("--log", default=None, help="original log file address")
-    parser.add_argument("--commands", default=None, help="seed commands file address")
+    # search configs
     parser.add_argument(
-        "--trajectory", default=None, help="expected trajectory file address"
-    )
-    parser.add_argument(
-        "-m", "--mission", default=None, help="original mission file address"
-    )
-    parser.add_argument("--params", default=None, help="params file address")
-    parser.add_argument("--path", default=None, help="cloud output path to copy logs")
-    parser.add_argument(
-        "-n",
-        default=1,
-        type=int,
-        help="no. of parallel evaluations",
-    )
-
-    parser.add_argument(
-        "--obst",
-        nargs=6,
-        type=float,
-        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
-        default=[],
-    )
-    parser.add_argument(
-        "--obst2",
-        nargs=6,
-        type=float,
-        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
-        default=[],
-    )
-    sub_parsers = parser.add_subparsers(help="sub-command help")
-    search_parser = sub_parsers.add_parser(
-        "search", help="search for best set of commands to replicate the scenario"
-    )
-    search_parser.add_argument(
-        "obj",
+        "objective",
         help="search objective",
-        choices=["projector", "segment", "obstacle", "obstacle2"],
+        choices=[
+            "obstacle",
+            "obstacle2",
+            "projector",
+            "segment",
+        ],
     )
-    search_parser.add_argument(
-        "-t",
-        "--tries",
+    parser.add_argument(
+        "--budget",
         default=10,
         type=int,
         help="max # of tries to find better solution",
     )
-    search_parser.add_argument(
-        "-r", "--runs", default=3, type=int, help="max # of runs"
+    parser.add_argument(
+        "--id",
+        default=None,
+        help="experiment id",
     )
-    search_parser.add_argument(
-        "-p",
-        "--projection",
+    # parser.add_argument(
+    #     "-p",
+    #     "--projection",
+    #     default=1,
+    #     type=float,
+    #     help="initial projection on the original commands",
+    # )
+
+    # agent configs
+    parser.add_argument(
+        "-n",
         default=1,
-        type=float,
-        help="initial projection on the original commands",
+        type=int,
+        help="no. of parallel runs",
+    )
+    parser.add_argument(
+        "--path",
+        default=None,
+        help="cloud output path to copy logs",
+    )
+    parser.add_argument("-r", "--runs", default=3, type=int, help="max # of runs")
+
+    # drone configs
+    parser.add_argument(
+        "--mission",
+        default=None,
+        help="input mission file address",
+    )
+    parser.add_argument(
+        "--params",
+        default=None,
+        help="params file address",
     )
 
-    search_parser.set_defaults(func=run_search)
+    # simulator configs
+    parser.add_argument(
+        "--simulator",
+        default=config("SIMULATOR", default="gazebo"),
+        choices=["gazebo", "jmavsim", "ros"],
+        help="the simulator environment to run",
+    )
+    parser.add_argument(
+        "--obstacle",
+        nargs=7,
+        type=float,
+        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
+        default=[],
+    )
+    parser.add_argument(
+        "--obstacle2",
+        nargs=7,
+        type=float,
+        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
+        default=[],
+    )
+    parser.add_argument(
+        "--home",
+        nargs=3,
+        type=float,
+        help="home position to place the drone: [lat,lon,alt] in order",
+        default=None,
+    )
 
+    # test configs
+    parser.add_argument(
+        "--commands",
+        default=None,
+        help="input commands file address",
+    )
+
+    # assertion configs
+    parser.add_argument(
+        "--log",
+        default=None,
+        help="original log file address",
+    )
+
+    parser.set_defaults(func=run_search)
+    args = parser.parse_args()
     return args
 
 
 def run_search(args):
-    if not args.obj.startswith("obstacle"):
+
+    if args.objective == "projector" or args.objective == "segment":
         Trajectory.IGNORE_AUTO_MODES = True
-    if args.trajectory is None:
-        trajectory = Trajectory.extract_from_log(args.log, is_jmavsim=args.jmavsim)
+
+    if args.seed is not None:
+        seed_test = DroneTest.from_yaml(args.seed)
     else:
-        trajectory = Trajectory.extract_from_csv(args.trajectory)
-    if args.obj == "projector" or args.obj == "segment":
-        if args.commands:
-            commands = Command.extract_from_csv(args.commands)
-        else:
-            commands = Command.extract_from_log(args.log)
+        drone_config = DroneConfig(
+            port=DroneConfig.ROS_PORT
+            if args.simulator == SimulationConfig.ROS
+            else DroneConfig.SITL_PORT,
+            params_file=args.params,
+            mission_file=args.mission,
+        )
+        simulation_config = SimulationConfig(
+            simulator=args.simulator,
+            world="default",
+            speed=1,
+            headless=True,
+            obstacles=args.obstacle + args.obstacle2,
+            home_position=args.home,
+        )
+        test_config = TestConfig(
+            commands_file=args.commands,
+            speed=1,
+        )
+        assertion_config = AssertionConfig(
+            log_file=args.log,
+            variable=AssertionConfig.TRAJECTORY,
+        )
+        seed_test = DroneTest(
+            drone=drone_config,
+            simulation=simulation_config,
+            test=test_config,
+            assertion=assertion_config,
+        )
+    goal = seed_test.assertion.expectation
+    if args.path is not None:
+        Search.WEBDAV_DIR = args.path
+    if args.id is not None:
+        Search.SEARCH_FLD_NAME = args.id
 
-        seed = CommandSolution(commands)
-        if args.projection != 1:
-            seed = seed.project(
-                args.projection, args.projection, args.projection, args.projection
-            )
-        if args.obj == "projector":
-            searcher_type = CommandProjectorSearch
-        elif args.obj == "segment":
-            searcher_type = CommandSegmentSearch
+    # if args.projection != 1:
+    #     seed_test = seed_test.project(
+    #         args.projection, args.projection, args.projection, args.projection
+    #     )
 
-    elif args.obj == "obstacle":
-        obs = Obstacle.from_coordinates(args.obst)
-        seed = ObstacleSolution(args.mission, obs)
-        searcher_type = ObstacleSearch
+    if args.objective == "obstacle":
+        seed_sol = ObstacleSolution(seed_test)
+        searcher = ObstacleSearch(seed_sol, goal, args.n)
+    elif args.objective == "obstacle2":
+        # goal = none
+        seed_sol = Obstacle2Solution(seed_test)
+        searcher = Obstacle2Search(seed_sol, goal, args.n)
 
-    elif args.obj == "obstacle2":
-        obs1 = Obstacle.from_coordinates(args.obst)
-        obs2 = Obstacle.from_coordinates(args.obst2)
-        seed = Obstacle2Solution(args.mission, obs1, obs2)
-        trajectory = None
-        searcher_type = Obstacle2Search
-
-    searcher = searcher_type(seed, trajectory, args.runs)
-    searcher.search(args.tries)
+    searcher.search(args.budget)
 
 
 def config_loggers():
     os.makedirs("logs/", exist_ok=True)
     logging.basicConfig(
         level=logging.DEBUG,
-        filename="logs/root.log",
+        filename="logs/root.txt",
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     c_handler = logging.StreamHandler()
-    f_handler = logging.FileHandler("logs/lib.log")
+    f_handler = logging.FileHandler("logs/lib.txt")
     c_handler.setLevel(logging.INFO)
     f_handler.setLevel(logging.DEBUG)
 
@@ -171,13 +233,17 @@ def config_loggers():
     main.addHandler(f_handler)
 
 
-if __name__ == "__main__":
+def main():
     try:
         config_loggers()
         args = arg_parse()
         logger.info(f"preparing the experiment environment...{args}")
-        args.func(args)
+        run_search(args)
 
     except Exception as e:
         logger.exception("program terminated:" + str(e), exc_info=True)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
