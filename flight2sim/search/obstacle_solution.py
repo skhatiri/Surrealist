@@ -1,6 +1,8 @@
 from __future__ import annotations
 import copy
+import math
 from aerialist.px4.drone_test import DroneTest
+from aerialist.px4.obstacle import Obstacle
 from .solution import Solution, MutationParams
 
 
@@ -16,21 +18,43 @@ class ObstacleSolution(Solution):
 
     def move_border(self, border, delta):
         mutant_test = copy.deepcopy(self.test)
+        obstacle = mutant_test.simulation.obstacles[0]
         if border == "x1":
-            mutant_test.simulation.obstacles[0].p1.x += delta
+            obstacle.size.x += delta
+            obstacle.position.x -= delta * math.cos(obstacle.angle)
+            obstacle.position.y -= delta * math.sin(obstacle.angle)
+            # obstacle.p1.x += delta
         if border == "y1":
-            mutant_test.simulation.obstacles[0].p1.y += delta
+            obstacle.size.y += delta
+            obstacle.position.x -= delta * math.sin(obstacle.angle)
+            obstacle.position.y -= delta * math.cos(obstacle.angle)
+            # obstacle.p1.y += delta
         if border == "x2":
-            mutant_test.simulation.obstacles[0].p2.x += delta
+            obstacle.size.x += delta
+            # obstacle.p2.x += delta
         if border == "y2":
-            mutant_test.simulation.obstacles[0].p2.y += delta
+            obstacle.size.y += delta
+            # obstacle.p2.y += delta
         if border == "x":
-            mutant_test.simulation.obstacles[0].p1.x += delta
-            mutant_test.simulation.obstacles[0].p2.x += delta
+            obstacle.position.x += delta
+            # obstacle.p1.x += delta
+            # obstacle.p2.x += delta
         if border == "y":
-            mutant_test.simulation.obstacles[0].p1.y += delta
-            mutant_test.simulation.obstacles[0].p2.y += delta
-        mutant = type(self)(mutant_test)
+            obstacle.position.y += delta
+            # obstacle.p1.y += delta
+            # obstacle.p2.y += delta
+
+        if obstacle.size.x <= 0 or obstacle.size.y <= 0:
+            # mutation is invalid (intersects with other obstacle)
+            mutant = copy.deepcopy(self)
+            mutant.obstacle = obstacle
+            mutant.fitness = -9999
+        else:
+            mutant_test.simulation.obstacles[0] = Obstacle(
+                obstacle.size, obstacle.position, obstacle.angle
+            )
+            mutant = type(self)(mutant_test)
+
         return mutant
 
 
@@ -45,8 +69,8 @@ class ObstacleMutationParams(MutationParams):
         self.delta = delta
 
     def log_str(self, sol: ObstacleSolution):
-        return f"{self.border},{self.delta},{sol.obstacle.p1.x},{sol.obstacle.p1.y},{sol.obstacle.p2.x},{sol.obstacle.p2.y}"
+        return f"{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.angle}"
 
     @classmethod
     def log_header(cls):
-        return "border, delta, x1, y1, x2, y2,"
+        return "border, delta, x, y, l, w, r,"

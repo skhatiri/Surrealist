@@ -52,6 +52,7 @@ class Solution(object):
                 drone=self.test.drone,
                 simulation=self.test.simulation,
                 test=self.test.test,
+                assertion=self.test.assertion,
                 agent=agent,
             )
         )
