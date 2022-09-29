@@ -1,3 +1,4 @@
+# must run from parent directory, where aerialist is also a subfolder
 FROM ubuntu:latest
 
 RUN apt-get update \
@@ -16,12 +17,14 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v4.22.1/yq_linux_amd6
     chmod +x /usr/bin/yq
 
 # setup source code
-COPY ./requirements.txt /src/drone-experiments/requirements.txt
-WORKDIR /src/drone-experiments/
+COPY ./Aerialist/ /src/aerialist
+RUN pip3 install -e /src/aerialist
+COPY ./Flight2Sim/requirements.txt /src/flight2sim/requirements.txt
+WORKDIR /src/flight2sim/
 RUN pip3 install -r requirements.txt
-COPY . /src/drone-experiments/
-RUN chmod +x /src/drone-experiments/run.py
-COPY ./k8s-config.yaml /root/.kube/config
-COPY ./template.env /src/drone-experiments/.env
-RUN mkdir -p /io/ /src/drone-experiments/results/logs/
+COPY ./Flight2Sim .
+# RUN chmod +x ./Flight2Sim/__main__.py
+COPY ./Flight2Sim/k8s-config.yaml /root/.kube/config
+COPY ./Flight2Sim/template.env ./.env
+RUN mkdir -p /io/ ./results/logs/
 
