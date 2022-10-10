@@ -5,9 +5,9 @@ results/*
 #k8s-config.yaml
 venv/
 results/
-fligt2sim/resources/logs/*_0.csv
-fligt2sim/resources/logs/*_1.csv
-fligt2sim/resources/logs/*_2.csv
+experiments/*_0.csv
+experiments/*_1.csv
+experiments/*_2.csv
 .DS_Store
 .huskyrc.json
 out
