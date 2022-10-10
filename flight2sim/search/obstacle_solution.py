@@ -21,20 +21,23 @@ class ObstacleSolution(Solution):
         obstacle = mutant_test.simulation.obstacles[0]
         if border == "x1":
             obstacle.size.x += delta
+            # obstacle.p2.x += delta
+        if border == "y1":
+            obstacle.size.y += delta
+            # obstacle.p2.y += delta
+        if border == "z1":
+            obstacle.size.z += delta
+        if border == "x2":
+            obstacle.size.x += delta
             obstacle.position.x -= delta * math.cos(obstacle.angle)
             obstacle.position.y -= delta * math.sin(obstacle.angle)
             # obstacle.p1.x += delta
-        if border == "y1":
+        if border == "y2":
             obstacle.size.y += delta
             obstacle.position.x -= delta * math.sin(obstacle.angle)
             obstacle.position.y -= delta * math.cos(obstacle.angle)
             # obstacle.p1.y += delta
-        if border == "x2":
-            obstacle.size.x += delta
-            # obstacle.p2.x += delta
-        if border == "y2":
-            obstacle.size.y += delta
-            # obstacle.p2.y += delta
+
         if border == "x":
             obstacle.position.x += delta
             # obstacle.p1.x += delta
@@ -44,8 +47,8 @@ class ObstacleSolution(Solution):
             # obstacle.p1.y += delta
             # obstacle.p2.y += delta
 
-        if obstacle.size.x <= 0 or obstacle.size.y <= 0:
-            # mutation is invalid (intersects with other obstacle)
+        if obstacle.size.x <= 0 or obstacle.size.y <= 0 or obstacle.size.z <= 0:
+            # mutation is invalid (size has negative elements)
             mutant = copy.deepcopy(self)
             mutant.obstacle = obstacle
             mutant.fitness = -9999

@@ -121,13 +121,6 @@ def arg_parse():
         help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
         default=[],
     )
-    parser.add_argument(
-        "--home",
-        nargs=3,
-        type=float,
-        help="home position to place the drone: [lat,lon,alt] in order",
-        default=None,
-    )
 
     # test configs
     parser.add_argument(
@@ -165,11 +158,9 @@ def run_search(args):
         )
         simulation_config = SimulationConfig(
             simulator=args.simulator,
-            world="default",
             speed=1,
             headless=True,
             obstacles=args.obstacle + args.obstacle2,
-            home_position=args.home,
         )
         test_config = TestConfig(
             commands_file=args.commands,

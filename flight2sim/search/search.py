@@ -27,6 +27,7 @@ class Search(object):
         super().__init__()
         logger.info(f"init searcher with {eval_runs} evaluations")
         folder_name = self.SEARCH_FLD_NAME + file_helper.time_filename()
+        Solution.K8S_JOB_ID_PREFIX = self.SEARCH_FLD_NAME
 
         self.dir = f"{config('RESULTS_DIR')}{folder_name}/"
         makedirs(self.dir)

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class Solution(object):
     DIR = config("RESULTS_DIR", default="results/")
     WEBDAV_DIR = config("WEBDAV_UP_FLD", default=None)
-
+    K8S_JOB_ID_PREFIX = ""
     CHANGE_THRESHOLD = config("SEARCH_CHANGE_THRESHOLD", cast=float, default=0.01)
 
     def __init__(self, test: DroneTest) -> None:
@@ -44,7 +44,7 @@ class Solution(object):
             engine=AgentConfig.K8S,
             count=runs,
             path=f"{self.WEBDAV_DIR}iter{iteration:03d}-{file_helper.time_filename()}/",
-            id=f"iter{iteration:03d}",
+            id=f"{self.K8S_JOB_ID_PREFIX}-iter{iteration:03d}",
         )
         K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
         results = execute_test(

@@ -20,10 +20,18 @@ class ObstacleSearch(Search):
     def search_mutation(self, budget: int = 5):
         improved = True
         delta = self.DELTA
-        border_budget = budget // 12
+        border_budget = budget // 7
         while improved:
             improved = False
-            for border in ["x", "y", "x1", "y1", "x2", "y2"]:
+            for border in [
+                "y",
+                "x",
+                "z1",
+                "x1",
+                "y1",
+                "x2",
+                "y2",
+            ]:
                 mutation_init = lambda delta: ObstacleMutationParams(border, delta)
                 sol, evals = self.greedy_search(
                     mutation_init,
