@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 from decouple import config
+
+config("MAKEING_SURE_TO_INIT_CONFIG_BEFORE_LOADING_AERIALIST", default=True)
 from aerialist.px4.trajectory import Trajectory
 from aerialist.px4.drone_test import (
     AssertionConfig,
