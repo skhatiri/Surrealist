@@ -1,5 +1,12 @@
 #######flight2sim command templates
+python3 flight2sim  obstacle --id case0 --obstacle 10 4 3 -5.5 2 0 30  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros
+
 python3 flight2sim  obstacle --obstacle 5 2 2 10 0 0 0 --id case1-0 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case1.plan --log experiments/case1.ulg --params experiments/case1-params.csv --commands experiments/case1-commands.csv  --simulator ros
 
 ####### aerialist command templates
+
 aerialist  --obstacle 5 2 2 10 0 0 0 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/case1-manual/ --mission experiments/case1.plan --log experiments/case1.ulg --params experiments/case1-params.csv --commands experiments/case1-commands.csv --drone ros --simulator ros --agent k8s -n 5
+
+export ROS_KUBE_TEMPLATE=../Aerialist/aerialist/resources/k8s/k8s-job-avoidance.yaml
+export KUBE_TEMPLATE=../Aerialist/aerialist/resources/k8s/k8s-job.yaml
+aerialist  --obstacle 10 3 3 -6 2 0 30 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/case0-manual/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case1-commands.csv --drone ros --simulator ros --agent k8s -n 7

@@ -12,9 +12,21 @@ class ObstacleSearch(Search):
     MAX_SAME = config("SEARCH_OBST_MAX_SAME", default=5, cast=int)
 
     def __init__(
-        self, seed: ObstacleSolution, goal: Trajectory, eval_runs: int = 1
+        self,
+        seed: ObstacleSolution,
+        goal: Trajectory,
+        eval_runs: int = 1,
+        path=Search.WEBDAV_DIR,
+        id=Search.SEARCH_FLD_NAME,
     ) -> None:
-        super().__init__(seed, goal, eval_runs, ObstacleMutationParams)
+        super().__init__(
+            seed,
+            goal,
+            eval_runs,
+            ObstacleMutationParams,
+            path,
+            id,
+        )
         # Trajectory.DISTANCE_METHOD = "frechet"
 
     def search_mutation(self, budget: int = 5):

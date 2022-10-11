@@ -189,7 +189,7 @@ def run_search(args):
 
     if args.objective == "obstacle":
         seed_sol = ObstacleSolution(seed_test)
-        searcher = ObstacleSearch(seed_sol, goal, args.n)
+        searcher = ObstacleSearch(seed_sol, goal, args.n, args.path, args.id)
     elif args.objective == "obstacle2":
         # goal = none
         seed_sol = Obstacle2Solution(seed_test)

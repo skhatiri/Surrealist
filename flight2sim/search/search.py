@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 class Search(object):
     SEARCH_FLD_NAME = config("SEARCH_FLD_NAME", "")
     WEBDAV_DIR = config("WEBDAV_UP_FLD", default=None)
+    LOCAL_DIR = config("RESULTS_DIR", default="results/")
 
     def __init__(
         self,
@@ -23,19 +24,25 @@ class Search(object):
         goal: Trajectory,
         eval_runs: int = 1,
         mutation_type=MutationParams,
+        path=WEBDAV_DIR,
+        id=SEARCH_FLD_NAME,
     ) -> None:
         super().__init__()
         logger.info(f"init searcher with {eval_runs} evaluations")
-        folder_name = self.SEARCH_FLD_NAME + file_helper.time_filename()
-        Solution.K8S_JOB_ID_PREFIX = self.SEARCH_FLD_NAME
+        if not path.endswith("/"):
+            path += "/"
+        if id is None or id == "":
+            folder_name = file_helper.time_filename()
+        else:
+            folder_name = id + "-" + file_helper.time_filename()
 
-        self.dir = f"{config('RESULTS_DIR')}{folder_name}/"
+        self.dir = f"{self.LOCAL_DIR}{folder_name}/"
         makedirs(self.dir)
         Trajectory.DIR = self.dir
         seed.DIR = self.dir
 
-        if self.WEBDAV_DIR is not None:
-            self.webdav_dir = f"{self.WEBDAV_DIR}{folder_name}/"
+        if path is not None:
+            self.webdav_dir = f"{path}{folder_name}/"
             file_helper.create_dir(self.webdav_dir)
             Trajectory.WEBDAV_DIR = self.webdav_dir
             Solution.WEBDAV_DIR = self.webdav_dir
