@@ -10,6 +10,19 @@ class ObstacleSearch(Search):
     MIN_DELTA = config("SEARCH_OBST_MIN_DELTA", default=0.05, cast=float)
     MAX_STALL = config("SEARCH_OBST_MAX_STALL", default=4, cast=int)
     MAX_SAME = config("SEARCH_OBST_MAX_SAME", default=5, cast=int)
+    MUTATIIONS = [
+        "x",
+        "y",
+        "sx",
+        "sy",
+        "sz",
+        "r",
+        # "z1",
+        # "x1",
+        # "y1",
+        # "x2",
+        # "y2",
+    ]
 
     def __init__(
         self,
@@ -29,22 +42,14 @@ class ObstacleSearch(Search):
         )
         # Trajectory.DISTANCE_METHOD = "frechet"
 
-    def search_mutation(self, budget: int = 5):
+    def search_mutation(self, budget: int = 100):
         improved = True
         delta = self.DELTA
-        border_budget = budget // 7
+        border_budget = budget // len(self.MUTATIIONS) * 2
         while improved:
             improved = False
-            for border in [
-                "y",
-                "x",
-                "z1",
-                "x1",
-                "y1",
-                "x2",
-                "y2",
-            ]:
-                mutation_init = lambda delta: ObstacleMutationParams(border, delta)
+            for mut_opr in self.MUTATIIONS:
+                mutation_init = lambda delta: ObstacleMutationParams(mut_opr, delta)
                 sol, evals = self.greedy_search(
                     mutation_init,
                     self.best,
@@ -60,7 +65,7 @@ class ObstacleSearch(Search):
                     self.best = sol
                     improved = True
 
-            border_budget = budget // 6
+            border_budget = budget // len(self.MUTATIIONS)
             delta /= 2
 
     def get_mutation_random(self):

@@ -1,4 +1,4 @@
-# must run from parent directory, where aerialist is also a subfolder
+# must run docker build from parent directory, where aerialist is also a subfolder
 FROM ubuntu:latest
 
 RUN apt-get update \

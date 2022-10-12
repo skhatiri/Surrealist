@@ -32,11 +32,11 @@ class Solution(object):
         runs: int,
         iteration: int,
     ) -> None:
-        if self.result is not None:  # solution has been simulated before
-            self.fitness = self.get_fitness(self.result, goal)
+        if hasattr(self, "fitness"):  # solution has been simulated before
             return
 
-        if hasattr(self, "fitness"):
+        if self.result is not None:  # solution has been simulated before
+            self.fitness = self.get_fitness(self.result, goal)
             return
 
         agent = AgentConfig(

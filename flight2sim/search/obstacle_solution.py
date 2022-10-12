@@ -19,6 +19,12 @@ class ObstacleSolution(Solution):
     def move_border(self, border, delta):
         mutant_test = copy.deepcopy(self.test)
         obstacle = mutant_test.simulation.obstacles[0]
+        if border == "sx":
+            obstacle.size.x += delta
+        if border == "sy":
+            obstacle.size.y += delta
+        if border == "sz":
+            obstacle.size.z += delta
         if border == "x1":
             obstacle.size.x += delta
             # obstacle.p2.x += delta
@@ -46,6 +52,8 @@ class ObstacleSolution(Solution):
             obstacle.position.y += delta
             # obstacle.p1.y += delta
             # obstacle.p2.y += delta
+        if border == "r":
+            obstacle.angle += delta
 
         if obstacle.size.x <= 0 or obstacle.size.y <= 0 or obstacle.size.z <= 0:
             # mutation is invalid (size has negative elements)
@@ -72,8 +80,8 @@ class ObstacleMutationParams(MutationParams):
         self.delta = delta
 
     def log_str(self, sol: ObstacleSolution):
-        return f"{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.angle}"
+        return f"{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle}"
 
     @classmethod
     def log_header(cls):
-        return "border, delta, x, y, l, w, r,"
+        return "border, delta, x, y, l, w, h, r,"

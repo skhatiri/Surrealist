@@ -1,0 +1,110 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flight2sim-case0
+  labels:
+    {}
+spec:
+  selector:
+    matchLabels:
+  template:
+    metadata:
+      labels:
+        {}
+    spec:
+      containers:
+        - imagePullPolicy: Always
+          name: container-0
+          __active: true
+          image: skhatiri/drone-experiments:flight2sim
+          stdin: true
+          stdinOnce: false
+          command:     
+            - python3
+            - flight2sim
+            - obstacle # search objective
+            - --obstacle
+            - '4'
+            - '4'
+            - '4'
+            - '-8'
+            - '2'
+            - '0'
+            - '15'
+            - --budget
+            - "100"
+            - -n
+            - "5"
+            - --id
+            - case0
+            - --path
+            - https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/
+            - --log
+            - experiments/case0.ulg
+            - --mission
+            - experiments/case0.plan
+            - --commands
+            - experiments/case0-commands.csv
+            - --params
+            - experiments/case0-params.csv
+            - --simulator 
+            - ros
+          tty: true
+          env:
+            - name: SEARCH_OBST_DELTA
+              value: '4'
+            - name: SEARCH_OBST_MIN_DELTA
+              value: '0.1'
+            - name: SEARCH_OBST_MAX_STALL
+              value: '5'
+            - name: SEARCH_OBST_MAX_SAME
+              value: '3'
+            - name: SEARCH_CHANGE_THRESHOLD
+              value: '0'
+            # - name: DISTANCE_METHOD
+            #   value: frechet
+            # - name: SEARCH_CHANGE_THRESHOLD
+            #   value: '0.2'
+            - name: PLOT_TESTS_XYZ
+              value: 'True'
+            - name: DOCKER_TIMEOUT
+              value: '1000'
+            - name: WEBDAV_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: webdav
+                  key: host        
+            - name: WEBDAV_ROOT
+              valueFrom:
+                secretKeyRef:
+                  name: webdav
+                  key: root    
+            - name: WEBDAV_USER
+              valueFrom:
+                secretKeyRef:
+                  name: webdav
+                  key: user           
+            - name: WEBDAV_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: webdav
+                  key: pass          
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 15000Mi
+            requests: {}
+      affinity:
+      imagePullSecrets:
+        - name: dockerhub
+      initContainers:
+      restartPolicy: OnFailure
+  completions: 1
+  suspend: false
+  replicas: 1
+#  activeDeadlineSeconds: int
+  backoffLimit: 3
+  completionMode: NonIndexed
+#  manualSelector: boolean
+  parallelism: 1
+  ttlSecondsAfterFinished: 10000

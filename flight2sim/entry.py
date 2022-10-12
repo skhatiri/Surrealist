@@ -215,15 +215,18 @@ def config_loggers():
     f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     c_handler.setFormatter(c_format)
     f_handler.setFormatter(f_format)
-    px4 = logging.getLogger("px4")
+    px4 = logging.getLogger("aerialist")
     main = logging.getLogger("__main__")
-    alg = logging.getLogger("algorithms")
+    alg = logging.getLogger("search")
+    ent = logging.getLogger("entry")
     px4.addHandler(c_handler)
     alg.addHandler(c_handler)
     main.addHandler(c_handler)
+    ent.addHandler(c_handler)
     px4.addHandler(f_handler)
     alg.addHandler(f_handler)
     main.addHandler(f_handler)
+    ent.addHandler(f_handler)
 
 
 def main():
