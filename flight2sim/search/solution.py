@@ -20,6 +20,7 @@ class Solution(object):
     DIR = config("RESULTS_DIR", default="results/")
     WEBDAV_DIR = config("WEBDAV_UP_FLD", default=None)
     CHANGE_THRESHOLD = config("SEARCH_CHANGE_THRESHOLD", cast=float, default=0.01)
+    INVALID_SOL_FITNESS = -9999
 
     def __init__(self, test: DroneTest) -> None:
         super().__init__()

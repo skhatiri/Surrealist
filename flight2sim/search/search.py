@@ -71,6 +71,8 @@ class Search(object):
     def search(self, budget: int = 5):
         logger.info(f"searching with {budget} tries")
         self.best.evaluate(self.goal, self.runs, len(self.all_log))
+        # to make invalid mutants recognizable
+        Solution.INVALID_SOL_FITNESS = round(self.seed.fitness * 2) + 0.0000001
         self.log_step(self.best, self.mutation_type(), True, 0, "seed")
         try:
             self.search_mutation(budget)

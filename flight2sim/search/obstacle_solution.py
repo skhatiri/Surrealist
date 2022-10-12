@@ -59,7 +59,7 @@ class ObstacleSolution(Solution):
             # mutation is invalid (size has negative elements)
             mutant = copy.deepcopy(self)
             mutant.obstacle = obstacle
-            mutant.fitness = -9999
+            mutant.fitness = self.INVALID_SOL_FITNESS
         else:
             mutant_test.simulation.obstacles[0] = Obstacle(
                 obstacle.size, obstacle.position, obstacle.angle

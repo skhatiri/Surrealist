@@ -7,22 +7,14 @@ from .search import Search
 
 class ObstacleSearch(Search):
     DELTA = config("SEARCH_OBST_DELTA", default=1, cast=float)
+    DELTA_R = config("SEARCH_OBST_DELTA_R", default=20, cast=float)
     MIN_DELTA = config("SEARCH_OBST_MIN_DELTA", default=0.05, cast=float)
+    MIN_DELTA_R = config("SEARCH_OBST_MIN_DELTA_R", default=1, cast=float)
     MAX_STALL = config("SEARCH_OBST_MAX_STALL", default=4, cast=int)
     MAX_SAME = config("SEARCH_OBST_MAX_SAME", default=5, cast=int)
-    MUTATIIONS = [
-        "x",
-        "y",
-        "sx",
-        "sy",
-        "sz",
-        "r",
-        # "z1",
-        # "x1",
-        # "y1",
-        # "x2",
-        # "y2",
-    ]
+    MUTATIONS_LIST = config("SEARCH_OBST_MUTATIONS", default="r,x,y,sx,sy,sz")
+    MUTATIONS = [op.strip() for op in MUTATIONS_LIST.split(",")]
+    MIN_ROUNDS = config("SEARCH_OBST_MIN_ROUNDS", default=4, cast=int)
 
     def __init__(
         self,
@@ -44,29 +36,36 @@ class ObstacleSearch(Search):
 
     def search_mutation(self, budget: int = 100):
         improved = True
-        delta = self.DELTA
-        border_budget = budget // len(self.MUTATIIONS) * 2
+        delta_factor = 1
+        rounds = self.MIN_ROUNDS
         while improved:
             improved = False
-            for mut_opr in self.MUTATIIONS:
+            opr_budget = budget // (len(self.MUTATIONS) * max(1, rounds))
+            for mut_opr in self.MUTATIONS:
+                if mut_opr == "r":
+                    delta = self.DELTA_R * delta_factor
+                    min_delta = self.MIN_DELTA_R
+                else:
+                    delta = self.DELTA * delta_factor
+                    min_delta = self.MIN_DELTA
                 mutation_init = lambda delta: ObstacleMutationParams(mut_opr, delta)
                 sol, evals = self.greedy_search(
                     mutation_init,
                     self.best,
-                    border_budget,
+                    opr_budget,
                     delta,
                     0,
                     self.MAX_STALL,
                     self.MAX_SAME,
-                    self.MIN_DELTA,
+                    min_delta,
                 )
                 budget -= evals
                 if sol is not None:
                     self.best = sol
                     improved = True
 
-            border_budget = budget // len(self.MUTATIIONS)
-            delta /= 2
+            rounds -= 1
+            delta_factor /= 2
 
     def get_mutation_random(self):
         next = ObstacleMutationParams()
