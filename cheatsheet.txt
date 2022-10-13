@@ -1,5 +1,5 @@
 #######flight2sim command templates
-kubectl apply -f k8s_search.yaml --validate=false
+kubectl apply -f k8s-search.yaml --validate=false
 
 python3 flight2sim  obstacle --id case0 --obstacle 10 4 3 -5.5 2 0 30  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros
 
@@ -18,3 +18,15 @@ python3 aerialist  --agent local --obstacle 5 2 2 10 0 0 0 --mission ../Flight2S
 
 # case 0 mid point: [-8.1,3.1,0]
 python3 aerialist --id case0-manual --obstacle 1 1 1 -8.1 3.1 0 0 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission ../Flight2Sim/experiments/case0.plan --log ../Flight2Sim/experiments/case0.ulg --params ../Flight2Sim/experiments/case0-params.csv --commands ../Flight2Sim/experiments/case0-commands.csv --drone ros --simulator ros --agent k8s -n 7
+
+>>> trj.positions[0]
+215938   (0.0016889999999997027,-0.000825414285714413,-0.011632357142857121)    None
+
+>>> trj.positions[-1]
+42798325.2       (-16.209347400000002,6.2787016,0.02354396000000003)    None
+
+>>> Position.average([trj.positions[0],trj.positions[-1]])
+21507131.6       (-8.103829200000002,3.138938092857143,0.0059558014285714545)   None
+
+>>> ang
+158.82556369495802

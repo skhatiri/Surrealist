@@ -24,20 +24,13 @@ spec:
             - flight2sim
             - obstacle # search objective
             - --obstacle
-            - "5" 
-            - "5"
-            - "5"
-            - "-8.1"
-            - "3.1"
+            - "2.5" 
+            - "2.5"
+            - "2.5"
+            - "-8.10"
+            - "3.14"
             - "0" 
-            - "0"
-            # - '5'
-            # - '5'
-            # - '5'
-            # - '-10'
-            # - '10'
-            # - '0'
-            # - '0'
+            - "158.8"
             - --budget
             - "200"
             - -n
@@ -65,11 +58,11 @@ spec:
             - name: SEARCH_OBST_DELTA
               value: '4'
             - name: SEARCH_OBST_DELTA_R
-              vaue: '20'
+              value: '20'
             - name: SEARCH_OBST_MIN_DELTA
               value: '0.1'
             - name: SEARCH_OBST_MIN_DELTA_R
-              value: '1'
+              value: '0.5'
             - name: SEARCH_OBST_MAX_STALL
               value: '5'
             - name: SEARCH_OBST_MAX_SAME
@@ -114,7 +107,7 @@ spec:
         - name: dockerhub
       initContainers:
       restartPolicy: OnFailure
-  completions: 1
+  completions: 10
   suspend: false
   replicas: 1
 #  activeDeadlineSeconds: int
