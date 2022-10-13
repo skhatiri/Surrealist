@@ -18,18 +18,17 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v4.22.1/yq_linux_amd6
 
 # setup Aerialist and Flight2Sim
 COPY ./Aerialist/requirements.txt /src/aerialist/requirements.txt
-RUN pip3 install -r /src/aerialist/requirements.txt
-
 COPY ./Flight2Sim/requirements.txt /src/flight2sim/requirements.txt
-COPY ./Flight2Sim/k8s-config.yaml /root/.kube/config
+WORKDIR /src/flight2sim/
+RUN pip3 install -r /src/aerialist/requirements.txt
 RUN pip3 install -r /src/flight2sim/requirements.txt
+COPY ./Flight2Sim/k8s-config.yaml /root/.kube/config
 
 COPY ./Aerialist/ /src/aerialist
 RUN pip3 install -e /src/aerialist
 COPY ./Flight2Sim/ /src/flight2sim/
 COPY ./Flight2Sim/template.env /src/flight2sim/.env
 
-WORKDIR /src/flight2sim/
 # RUN chmod +x ./Flight2Sim/__main__.py
 RUN mkdir -p /io/ ./results/logs/
 
