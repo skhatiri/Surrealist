@@ -52,7 +52,7 @@ spec:
           tty: true
           env:
             - name: SEARCH_OBST_MUTATIONS
-              value: 'r,x,y,sx,sy,sz'
+              value: 'x,y,r,sz,sx,sy'
             - name: SEARCH_OBST_MIN_ROUNDS
               value: '4'
             - name: SEARCH_OBST_DELTA
