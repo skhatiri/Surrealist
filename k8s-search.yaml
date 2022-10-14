@@ -24,11 +24,11 @@ spec:
             - flight2sim
             - obstacle # search objective
             - --obstacle
-            - "2" 
-            - "2"
-            - "2"
-            - "-8.46" 
-            - "2.21"
+            - "3" 
+            - "3"
+            - "3"
+            - "-8.64" 
+            - "1.74"
             # - "-8.10"
             # - "3.14"
             - "0" 
@@ -54,13 +54,13 @@ spec:
           tty: true
           env:
             - name: SEARCH_OBST_MUTATIONS
-              value: 'x,y,r,sz,sx,sy'
+              value: 'y,x,r,sy,sx,sz'
             - name: SEARCH_OBST_MIN_ROUNDS
               value: '4'
             - name: SEARCH_OBST_DELTA
               value: '4'
             - name: SEARCH_OBST_DELTA_R
-              value: '20'
+              value: '30'
             - name: SEARCH_OBST_MIN_DELTA
               value: '0.1'
             - name: SEARCH_OBST_MIN_DELTA_R
@@ -70,7 +70,7 @@ spec:
             - name: SEARCH_OBST_MAX_SAME
               value: '3'
             - name: SEARCH_CHANGE_THRESHOLD
-              value: '0.5'
+              value: '30'
             # - name: DISTANCE_METHOD
             #   value: frechet
             # - name: SEARCH_CHANGE_THRESHOLD

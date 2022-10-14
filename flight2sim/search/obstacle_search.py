@@ -3,6 +3,7 @@ import random
 from aerialist.px4.trajectory import Trajectory
 from .obstacle_solution import ObstacleMutationParams, ObstacleSolution
 from .search import Search
+import math
 
 
 class ObstacleSearch(Search):
@@ -65,7 +66,7 @@ class ObstacleSearch(Search):
                     improved = True
 
             rounds -= 1
-            delta_factor /= 2
+            delta_factor /= math.sqrt(2)
 
     def get_mutation_random(self):
         next = ObstacleMutationParams()
