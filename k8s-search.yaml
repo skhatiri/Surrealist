@@ -19,7 +19,7 @@ spec:
           image: skhatiri/drone-experiments:flight2sim
           stdin: true
           stdinOnce: false
-          command:     
+          command:
             - python3
             - flight2sim
             - obstacle # search objective
@@ -27,14 +27,19 @@ spec:
             - "3" 
             - "3"
             - "3"
-            - "-8.64" 
-            - "1.74"
+            # right of the center
+            - "-7.56" 
+            - "4.54"
+            # left of the center
+            # - "-8.64" 
+            # - "1.74"
+            # on the center
             # - "-8.10"
             # - "3.14"
             - "0" 
             - "158.8"
             - --budget
-            - "200"
+            - "100"
             - -n
             - "5"
             - --id
@@ -56,7 +61,7 @@ spec:
             - name: SEARCH_OBST_MUTATIONS
               value: 'y,x,r,sy,sx,sz'
             - name: SEARCH_OBST_MIN_ROUNDS
-              value: '4'
+              value: '2' #'4'
             - name: SEARCH_OBST_DELTA
               value: '4'
             - name: SEARCH_OBST_DELTA_R
@@ -70,7 +75,7 @@ spec:
             - name: SEARCH_OBST_MAX_SAME
               value: '3'
             - name: SEARCH_CHANGE_THRESHOLD
-              value: '30'
+              value: '10' #'30'
             # - name: DISTANCE_METHOD
             #   value: frechet
             # - name: SEARCH_CHANGE_THRESHOLD
