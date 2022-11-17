@@ -9,64 +9,68 @@ from .solution import Solution, MutationParams
 class ObstacleSolution(Solution):
     def __init__(self, test: DroneTest) -> None:
         super().__init__(test)
+        self.mutation_type = ObstacleMutationParams
         self.obstacle = test.simulation.obstacles[0]
 
     def mutate(self, param: ObstacleMutationParams) -> ObstacleSolution:
-        mutant = self
-        mutant = mutant.move_border(param.border, param.delta)
-        return mutant
-
-    def move_border(self, border, delta):
-        mutant_test = copy.deepcopy(self.test)
-        obstacle = mutant_test.simulation.obstacles[0]
-        if border == "sx":
-            obstacle.size.x += delta
-        if border == "sy":
-            obstacle.size.y += delta
-        if border == "sz":
-            obstacle.size.z += delta
-        if border == "x1":
-            obstacle.size.x += delta
-            # obstacle.p2.x += delta
-        if border == "y1":
-            obstacle.size.y += delta
-            # obstacle.p2.y += delta
-        if border == "z1":
-            obstacle.size.z += delta
-        if border == "x2":
-            obstacle.size.x += delta
-            obstacle.position.x -= delta * math.cos(obstacle.angle)
-            obstacle.position.y -= delta * math.sin(obstacle.angle)
-            # obstacle.p1.x += delta
-        if border == "y2":
-            obstacle.size.y += delta
-            obstacle.position.x -= delta * math.sin(obstacle.angle)
-            obstacle.position.y -= delta * math.cos(obstacle.angle)
-            # obstacle.p1.y += delta
-
-        if border == "x":
-            obstacle.position.x += delta
-            # obstacle.p1.x += delta
-            # obstacle.p2.x += delta
-        if border == "y":
-            obstacle.position.y += delta
-            # obstacle.p1.y += delta
-            # obstacle.p2.y += delta
-        if border == "r":
-            obstacle.angle += delta
-
-        if obstacle.size.x <= 0 or obstacle.size.y <= 0 or obstacle.size.z <= 0:
+        mutant_obstacle = self.move_border(self.obstacle, param.border, param.delta)
+        if (
+            mutant_obstacle.size.x <= 0
+            or mutant_obstacle.size.y <= 0
+            or mutant_obstacle.size.z <= 0
+        ):
             # mutation is invalid (size has negative elements)
             mutant = copy.deepcopy(self)
-            mutant.obstacle = obstacle
+            mutant.obstacle = mutant_obstacle
             mutant.fitness = self.INVALID_SOL_FITNESS
         else:
+            mutant_test = copy.deepcopy(self.test)
             mutant_test.simulation.obstacles[0] = Obstacle(
-                obstacle.size, obstacle.position, obstacle.angle
+                mutant_obstacle.size, mutant_obstacle.position, mutant_obstacle.angle
             )
             mutant = type(self)(mutant_test)
 
         return mutant
+
+    def move_border(self, obstacle: Obstacle, border: str, delta: float) -> Obstacle:
+        mutant_obstacle = copy.deepcopy(obstacle)
+        if border == "sx":
+            mutant_obstacle.size.x += delta
+        if border == "sy":
+            mutant_obstacle.size.y += delta
+        if border == "sz":
+            mutant_obstacle.size.z += delta
+        if border == "x1":
+            mutant_obstacle.size.x += delta
+            # obstacle.p2.x += delta
+        if border == "y1":
+            mutant_obstacle.size.y += delta
+            # obstacle.p2.y += delta
+        if border == "z1":
+            mutant_obstacle.size.z += delta
+        if border == "x2":
+            mutant_obstacle.size.x += delta
+            mutant_obstacle.position.x -= delta * math.cos(mutant_obstacle.angle)
+            mutant_obstacle.position.y -= delta * math.sin(mutant_obstacle.angle)
+            # obstacle.p1.x += delta
+        if border == "y2":
+            mutant_obstacle.size.y += delta
+            mutant_obstacle.position.x -= delta * math.sin(mutant_obstacle.angle)
+            mutant_obstacle.position.y -= delta * math.cos(mutant_obstacle.angle)
+            # obstacle.p1.y += delta
+
+        if border == "x":
+            mutant_obstacle.position.x += delta
+            # obstacle.p1.x += delta
+            # obstacle.p2.x += delta
+        if border == "y":
+            mutant_obstacle.position.y += delta
+            # obstacle.p1.y += delta
+            # obstacle.p2.y += delta
+        if border == "r":
+            mutant_obstacle.angle += delta
+
+        return mutant_obstacle
 
 
 class ObstacleMutationParams(MutationParams):

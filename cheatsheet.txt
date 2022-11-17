@@ -1,6 +1,11 @@
 #######flight2sim command templates
 kubectl apply -f k8s-search.yaml --validate=false
 
+python3 flight2sim  obstacle2 --id case0-gen --obstacle 3 5.35 3 -7.56 -17.29 0 200.05 --obstacle2 3 5.35 3 -7.56 3.29 0 200.05  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --log experiments/case0.ulg --mission experiments/case0.plan --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros
+
+python3 aerialist --obstacle 3 5.35 3 -7.56 -17.29 0 200.05 --obstacle2 3 5.35 3 -7.56 3.29 0 200.05 --drone ros --params '../Flight2Sim/experiments/case0-params.csv' --mission --log '../Flight2Sim/experiments/case0.ulg' '../Flight2Sim/experiments/case0.plan' --simulator ros --speed 1 --headless  --commands '../Flight2Sim/experiments/case0-commands.csv' --agent local 
+
+
 python3 flight2sim  obstacle --id case0 --obstacle 10 4 3 -5.5 2 0 30  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros
 
 python3 flight2sim  obstacle --obstacle 5 2 2 10 0 0 0 --id case1-0 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case1.plan --log experiments/case1.ulg --params experiments/case1-params.csv --commands experiments/case1-commands.csv  --simulator ros
@@ -57,4 +62,10 @@ ave distances
 20.237073919417853
 17.035247905961057
 117.46537776344331
+----------------
+ave
+58.4743
+ave-without outlier
+34.35
+
 
