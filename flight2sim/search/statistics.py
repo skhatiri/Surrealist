@@ -105,4 +105,4 @@ def significance_test(data1: List[float], data2: List[float]):
     else:
         # accept the hypothesis
         # the distributions are similar
-        return True, p1, p2, distribution, p, eff_size, pow
+        return True, p1, p2, distribution, p, None, None
