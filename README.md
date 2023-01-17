@@ -1,15 +1,16 @@
-# Flight2Sim
+# SURREALIST: Simulation-based Test Case Generation for UAVs in the Neighborhood of Real Flights
 
-The reposotory contains tools to do experiments on drone platforms,
-specifically it supports [PX4-Autopilot](https://github.com/PX4/PX4-Autopilot) running on both actual drones (currently Crazyflie 2.1 tested) and in SITL mode leveraging simulators (currently Gazebo and JMavSim tested)
+Unmanned aerial vehicles (UAVs), also known as drones, are acquiring increasing autonomy. With their commercial adoption, the problem of testing their functional and non-functional, and in particular their safety requirements has become a critical concern.
+Simulation-based testing represents a fundamental practice, but the testing scenarios considered in software-in-the-loop testing may not be representative of the actual scenarios experienced in the field.
+Here, we propose Surrealist (teSting Uavs in the neighboRhood of REAl fLIghtS), a novel search-based approach that analyses logs of real UAV flights and automatically generates simulation-based tests in the neighborhood of such real flights, thereby improving the realism and representativeness of the simulation-based tests.
+This is done in two steps: first, Surrealist faithfully replicates the given UAV flight in the simulation environment, generating a simulation-based test that mirrors a pre-logged real-world behavior. Then, it smoothly manipulates the replicated flight conditions to discover slightly modified flight scenarios that are challenging or trigger misbehaviors of the UAV under test in simulation.
+In our experiments, we were able to replicate a real flight accurately in the simulation environment and to expose unstable and potentially unsafe behavior in the neighborhood of a flight, which even led to crashes.
 
-## Packages
+Surrealist internally uses [Aerialist](https://github.com/skhatiri/Aerialist), A UAV test bench developed on top of PX4, to evalute the UAV test cases in the simulation environment.
 
-### px4/
+![surrealist approach overview](docs/overview.jpg)
 
-The package simplifies the conection to drones, as well as sending commands, extracting data from logs, replaying recorded flights from logs, etc., using the [Experiment](px4/experiment.py) interface.
-
-### algorithms/
+## algorithms/
 
 This package includes implementation of different (search-based) algorithms to (currently) reconstruct a recorded flight in simulation. This is done by starting with the initial series of commands logged during original flight, and searching for best parameters to reproduce the simulated flight as similar as possible to the original one.
 
