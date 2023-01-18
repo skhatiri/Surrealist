@@ -59,7 +59,7 @@ def arg_parse():
         "--budget",
         default=10,
         type=int,
-        help="max # of tries to find better solution",
+        help="global budget of the search algorithm",
     )
     parser.add_argument(
         "--id",
@@ -86,7 +86,6 @@ def arg_parse():
         default=None,
         help="cloud output path to copy logs",
     )
-    parser.add_argument("-r", "--runs", default=3, type=int, help="max # of runs")
 
     # drone configs
     parser.add_argument(
