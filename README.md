@@ -72,3 +72,28 @@ You can use `python3 surealist --help` anywhere to get help on the command param
 
 Some of the common combination of the following arguments are listed here as sample test cases:
 **TO BE UPDATED**
+
+## References
+
+If you use this tool in your research, please cite the following papers:
+
+- **Sajad Khatiri**, Sebastiano Panichella, and Paolo Tonella, "Simulation-based Test Case Generation for Unmanned Aerial Vehicles in the Neighborhood of Real Flights," *In 2023 IEEE 16th International Conference on Software Testing, Verification and Validation (ICST)*
+  - [Preprint](https://skhatiri.ir/papers/surreal.pdf)
+
+````{code-block} bibtex
+@inproceedings{khatiri2023simulation,
+  title={Simulation-based test case generation for unmanned aerial vehicles in the neighborhood of real flights},
+  author={Khatiri, Sajad and Panichella, Sebastiano and Tonella, Paolo},
+  booktitle={2023 16th IEEE International Conference on Software Testing, Verification and Validation (ICST)},
+  year={2023},
+}
+````
+
+## License
+
+The software we developed is distributed under MIT license. See the [license](./LICENSE.md) file.
+
+## Contacts
+
+- Sajad Khatiri
+  - Zurich University of Applied Science (ZHAW), Switzerland - mazr@zhaw.ch
