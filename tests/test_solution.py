@@ -10,9 +10,9 @@ from aerialist.px4.drone_test import (
     TestConfig,
 )
 from aerialist.px4.trajectory import Trajectory
-from flight2sim.search.solution import Solution
-from flight2sim.search.obstacle_solution import ObstacleSolution
-from flight2sim.search.obstacle2_solution import Obstacle2Solution
+from surrealist.search.solution import Solution
+from surrealist.search.obstacle_solution import ObstacleSolution
+from surrealist.search.obstacle2_solution import Obstacle2Solution
 
 
 class TestSolution(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestSolution(unittest.TestCase):
             mission_file=None,
         )
         test_config = TestConfig(
-            commands_file="flight2sim/resources/logs/t0.ulg",
+            commands_file="experiments/t0.ulg",
         )
         seed = DroneTest(
             drone_config,
@@ -44,7 +44,7 @@ class TestSolution(unittest.TestCase):
             test_config,
         )
         goal = AssertionConfig(
-            log_file="flight2sim/resources/logs/t0.ulg",
+            log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
         ).expectation
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
@@ -70,11 +70,11 @@ class TestSolution(unittest.TestCase):
         )
         drone_config = DroneConfig(
             port=DroneConfig.ROS_PORT,
-            params_file="flight2sim/resources/logs/params_avoidance.csv",
-            mission_file="flight2sim/resources/logs/auto1.plan",
+            params_file="experiments/params_avoidance.csv",
+            mission_file="experiments/auto1.plan",
         )
         test_config = TestConfig(
-            commands_file="flight2sim/resources/logs/auto_commands.csv",
+            commands_file="experiments/auto_commands.csv",
         )
         seed = DroneTest(
             drone_config,
@@ -82,7 +82,7 @@ class TestSolution(unittest.TestCase):
             test_config,
         )
         goal = AssertionConfig(
-            log_file="flight2sim/resources/logs/auto1.ulg",
+            log_file="experiments/auto1.ulg",
             variable=AssertionConfig.TRAJECTORY,
         ).expectation
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
