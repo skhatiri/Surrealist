@@ -51,9 +51,9 @@ You can utilize the toolkit with following command line options:
 
 **Note:** Before running any command, make sure you are at the root directory of the repository:
 
-`cd Surealist/`
+`cd Surrealist/`
 
-You can use `python3 surealist --help` anywhere to get help on the command parameters.
+You can use `python3 surrealist --help` anywhere to get help on the command parameters.
 
 |argument   | input type            | description                   |
 |-----------|-----------------------|------------------------------ |
