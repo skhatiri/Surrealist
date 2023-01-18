@@ -23,7 +23,6 @@ class Search(object):
         seed: Solution,
         goal: Trajectory,
         eval_runs: int = 1,
-        mutation_type=MutationParams,
         path=WEBDAV_DIR,
         id=SEARCH_FLD_NAME,
     ) -> None:
@@ -47,11 +46,11 @@ class Search(object):
             Trajectory.WEBDAV_DIR = self.webdav_dir
             Solution.WEBDAV_DIR = self.webdav_dir
 
-        self.mutation_type = mutation_type
+        self.mutation_type = seed.mutation_type
         self.csv_logger = CsvLogger(
             filename=f"{self.dir}log.csv",
             level=logging.DEBUG,
-            header=f"time, iteration, fitness, taken?, comparison,{mutation_type.log_header()}[fitnesses], desc.",
+            header=f"time, iteration, fitness, taken?, comparison,{self.mutation_type.log_header()}[fitnesses], desc.",
         )
         self.seed = seed
         self.goal = goal

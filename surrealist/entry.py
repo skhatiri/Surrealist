@@ -59,7 +59,7 @@ def arg_parse():
         "--budget",
         default=10,
         type=int,
-        help="max # of tries to find better solution",
+        help="global budget of the search algorithm",
     )
     parser.add_argument(
         "--id",
@@ -86,7 +86,6 @@ def arg_parse():
         default=None,
         help="cloud output path to copy logs",
     )
-    parser.add_argument("-r", "--runs", default=3, type=int, help="max # of runs")
 
     # drone configs
     parser.add_argument(
@@ -166,17 +165,21 @@ def run_search(args):
             commands_file=args.commands,
             speed=1,
         )
-        assertion_config = AssertionConfig(
-            log_file=args.log,
-            variable=AssertionConfig.TRAJECTORY,
-        )
+        if args.log is not None:
+            assertion_config = AssertionConfig(
+                log_file=args.log,
+                variable=AssertionConfig.TRAJECTORY,
+            )
+        else:
+            assertion_config = None
         seed_test = DroneTest(
             drone=drone_config,
             simulation=simulation_config,
             test=test_config,
             assertion=assertion_config,
         )
-    goal = seed_test.assertion.expectation
+    if seed_test.assertion is not None:
+        goal = seed_test.assertion.expectation
     if args.path is not None:
         Search.WEBDAV_DIR = args.path
     if args.id is not None:
@@ -193,7 +196,7 @@ def run_search(args):
     elif args.objective == "obstacle2":
         # goal = none
         seed_sol = Obstacle2Solution(seed_test)
-        searcher = Obstacle2Search(seed_sol, goal, args.n)
+        searcher = Obstacle2Search(seed_sol, args.n, args.path, args.id)
 
     searcher.search(args.budget)
 

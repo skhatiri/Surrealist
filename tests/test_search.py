@@ -9,10 +9,10 @@ from aerialist.px4.drone_test import (
     SimulationConfig,
     TestConfig,
 )
-from flight2sim.search.obstacle_search import ObstacleSearch
-from flight2sim.search.obstacle_solution import ObstacleMutationParams, ObstacleSolution
-from flight2sim.search.search import Search
-from flight2sim.search.solution import MutationParams, Solution
+from surrealist.search.obstacle_search import ObstacleSearch
+from surrealist.search.obstacle_solution import ObstacleMutationParams, ObstacleSolution
+from surrealist.search.search import Search
+from surrealist.search.solution import MutationParams, Solution
 
 
 class TestSearch(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestSearch(unittest.TestCase):
             mission_file=None,
         )
         test_config = TestConfig(
-            commands_file="flight2sim/resources/logs/t0.ulg",
+            commands_file="experiments/t0.ulg",
         )
         seed = DroneTest(
             drone_config,
@@ -46,7 +46,7 @@ class TestSearch(unittest.TestCase):
         seed_sol = Solution(seed)
 
         goal = AssertionConfig(
-            log_file="flight2sim/resources/logs/t0.ulg",
+            log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
         ).expectation
 
@@ -67,14 +67,14 @@ class TestSearch(unittest.TestCase):
         )
         drone_config = DroneConfig(
             port=DroneConfig.ROS_PORT,
-            params_file="flight2sim/resources/logs/rq2-0-params.csv",
-            mission_file="flight2sim/resources/logs/rq2-0.plan",
+            params_file="experiments/rq2-0-params.csv",
+            mission_file="experiments/rq2-0.plan",
         )
         test_config = TestConfig(
-            commands_file="flight2sim/resources/logs/auto_commands.csv",
+            commands_file="experiments/auto_commands.csv",
         )
         assertion = AssertionConfig(
-            log_file="flight2sim/resources/logs/rq2-0.ulg",
+            log_file="experiments/rq2-0.ulg",
             variable=AssertionConfig.TRAJECTORY,
         )
 

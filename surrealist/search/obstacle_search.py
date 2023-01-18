@@ -29,7 +29,6 @@ class ObstacleSearch(Search):
             seed,
             goal,
             eval_runs,
-            ObstacleMutationParams,
             path,
             id,
         )
@@ -49,7 +48,7 @@ class ObstacleSearch(Search):
                 else:
                     delta = self.DELTA * delta_factor
                     min_delta = self.MIN_DELTA
-                mutation_init = lambda delta: ObstacleMutationParams(mut_opr, delta)
+                mutation_init = lambda delta: self.mutation_type(mut_opr, delta)
                 sol, evals = self.greedy_search(
                     mutation_init,
                     self.best,

@@ -16,18 +16,18 @@ RUN curl -sLS https://get.arkade.dev | sh \
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.22.1/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
-# setup Aerialist and Flight2Sim
+# setup Aerialist and surrealist
 COPY ./Aerialist/requirements.txt /src/aerialist/requirements.txt
-COPY ./Flight2Sim/requirements.txt /src/flight2sim/requirements.txt
-WORKDIR /src/flight2sim/
+COPY ./Flight2Sim/requirements.txt /src/surrealist/requirements.txt
+WORKDIR /src/surrealist/
 RUN pip3 install -r /src/aerialist/requirements.txt
-RUN pip3 install -r /src/flight2sim/requirements.txt
+RUN pip3 install -r /src/surrealist/requirements.txt
 COPY ./Flight2Sim/k8s-config.yaml /root/.kube/config
 
 COPY ./Aerialist/ /src/aerialist
 RUN pip3 install -e /src/aerialist
-COPY ./Flight2Sim/ /src/flight2sim/
-COPY ./Flight2Sim/template.env /src/flight2sim/.env
+COPY ./Flight2Sim/ /src/surrealist/
+COPY ./Flight2Sim/template.env /src/surrealist/.env
 
 # RUN chmod +x ./Flight2Sim/__main__.py
 RUN mkdir -p /io/ ./results/logs/

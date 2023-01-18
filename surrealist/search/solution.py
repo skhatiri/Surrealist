@@ -26,6 +26,7 @@ class Solution(object):
         super().__init__()
         self.test = test
         self.result = None
+        self.mutation_type = MutationParams
 
     def evaluate(
         self,
@@ -65,11 +66,8 @@ class Solution(object):
         goal: Trajectory,
     ):
         logger.info(f"{len(results)} evalations completed")
-        self.trajectories: List[Trajectory] = []
-        self.fitnesses: List[float] = []
-        for r in results:
-            self.trajectories.append(r.record)
-            self.fitnesses.append(self.get_fitness(r.record, goal))
+        self.trajectories = [r.record for r in results]
+        self.fitnesses = [self.get_fitness(r.record, goal) for r in results]
 
         median_ind = self.fitnesses.index(
             percentile(self.fitnesses, 50, interpolation="nearest")

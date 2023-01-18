@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: flight2sim-case0
+  name: surrealist-case0
   labels:
     {}
 spec:
@@ -21,7 +21,7 @@ spec:
           stdinOnce: false
           command:
             - python3
-            - flight2sim
+            - surrealist
             - obstacle # search objective
             - --obstacle
             - "3" 
