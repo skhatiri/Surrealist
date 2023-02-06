@@ -5,7 +5,7 @@ results/*
 #k8s-config.yaml
 venv/
 results/
-experiments/
+#experiments/
 experiments/*_0.csv
 experiments/*_1.csv
 experiments/*_2.csv
