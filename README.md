@@ -71,7 +71,14 @@ You can use `python3 surrealist --help` anywhere to get help on the command para
 | --id      | string                | experiment Id                 |
 
 Some of the common combination of the following arguments are listed here as sample test cases:
-**TO BE UPDATED**
+
+- Replicating an autonomous flight in simulation, by finding optimal obstacle properties (box size, position, orientation):
+
+`python3 surrealist  obstacle --id case0 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+
+- Generating challenging tests for autonomous flight in simulation, by finding optimal additional obstacle properties (box size, position, orientation):
+
+`python3 surrealist  obstacle2 --id case0 --obstacle 3 3 3 -7.56 4.54 0 158.8 -obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
 
 ## References
 
