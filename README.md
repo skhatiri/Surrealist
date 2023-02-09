@@ -61,9 +61,9 @@ You can use `python3 surrealist --help` anywhere to get help on the command para
 | --budget  | int = 10              | global budget of the search algorithm|
 | --mission | path/to/file.plan     | input mission file address    |
 | --params  | path/to/file.csv      | params file address           |
-| --simulator| {**gazebo**,jmavsim,ros} | the simulator environment to run|
-| --obstacle| float [l,w,h,x,y,z,r] | obstacle size, position, and angle to put in simulation environment|
-| --obstacle2| float [l,w,h,x,y,z,r]| obstacle size, position, and angle to put in simulation environment|  
+| --simulator| {gazebo,jmavsim,**ros**} | the simulator environment to run|
+| --obstacle| float [l,w,h,x,y,z,r] | seed obstacle size, position, and angle to put in simulation environment|
+| --obstacle2| float [l,w,h,x,y,z,r]| seed obstacle size, position, and angle to put in simulation environment|  
 | --commands| path/to/file.{ulg,csv}| runtime commands file address |
 | --log     | path/to/file.ulg      | reference log file address    |
 | -n        | int = 1               | no. of parallel runs          |
@@ -74,18 +74,19 @@ Some of the common combination of the following arguments are listed here as sam
 
 - Replicating an autonomous flight in simulation, by finding optimal obstacle properties (box size, position, orientation):
 
-`python3 surrealist  obstacle --id case0 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+`python3 surrealist  obstacle --id RQ1 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
 
 - Generating challenging tests for autonomous flight in simulation, by finding optimal additional obstacle properties (box size, position, orientation):
 
-`python3 surrealist  obstacle2 --id case0 --obstacle 3 3 3 -7.56 4.54 0 158.8 -obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 -obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
 
 ## References
 
 If you use this tool in your research, please cite the following papers:
 
 - **Sajad Khatiri**, Sebastiano Panichella, and Paolo Tonella, "Simulation-based Test Case Generation for Unmanned Aerial Vehicles in the Neighborhood of Real Flights," *In 2023 IEEE 16th International Conference on Software Testing, Verification and Validation (ICST)*
-  - [Preprint](https://skhatiri.ir/papers/surreal.pdf)
+  - [Preprint](https://skhatiri.ir/papers/surrealist.pdf)
+  - [Experiments Dataset](https://doi.org/10.5281/zenodo.6525021)
 
 ````{code-block} bibtex
 @inproceedings{khatiri2023simulation,
