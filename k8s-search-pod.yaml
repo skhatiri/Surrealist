@@ -18,10 +18,10 @@ spec:
       image: skhatiri/surrealist
       stdin: true
       stdinOnce: false
-      command:
-        - /bin/bash 
-        - -c 
-        - "$(COMMAND)"
+      # command:
+      #   - /bin/bash 
+      #   - -c 
+      #   - "$(COMMAND)"
       tty: true
       env:
         - name: COMMAND
