@@ -141,7 +141,6 @@ def arg_parse():
 
 
 def run_search(args):
-
     if args.objective == "projector" or args.objective == "segment":
         Trajectory.IGNORE_AUTO_MODES = True
 

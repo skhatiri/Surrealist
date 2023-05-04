@@ -19,7 +19,6 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v4.22.1/yq_linux_amd6
 COPY ./requirements.txt /src/surrealist/requirements.txt
 WORKDIR /src/surrealist/
 RUN pip3 install -r /src/surrealist/requirements.txt
-COPY ./k8s-config.yaml /root/.kube/config
 
 COPY ./ /src/surrealist/
 COPY ./template.env /src/surrealist/.env

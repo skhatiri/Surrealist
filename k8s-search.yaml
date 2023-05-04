@@ -12,11 +12,16 @@ spec:
       labels:
         {}
     spec:
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: k8s-config
+          name: vol-k8s-conf
       containers:
         - imagePullPolicy: Always
           name: container-0
           __active: true
-          image: skhatiri/drone-experiments:flight2sim
+          image: skhatiri/surrealist
           stdin: true
           stdinOnce: false
           command:
@@ -103,7 +108,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: webdav
-                  key: pass          
+                  key: pass  
+          volumeMounts:
+            - mountPath: /root/.kube/config
+              name: vol-k8s-conf
+              readOnly: true
+              subPath: k8s-config.yaml        
           resources:
             limits:
               cpu: 1500m

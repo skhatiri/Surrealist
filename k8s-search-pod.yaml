@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: surrealist
+  labels:
+    {}
+
+spec:
+  volumes:
+    - configMap:
+        defaultMode: 420
+        name: k8s-config
+      name: vol-k8s-conf
+  containers:
+    - imagePullPolicy: Always
+      name: container-0
+      __active: true
+      image: skhatiri/surrealist
+      stdin: true
+      stdinOnce: false
+      command:
+        - /bin/bash 
+        - -c 
+        - "$(COMMAND)"
+      tty: true
+      env:
+        - name: COMMAND
+          value: 'python3 surrealist --help'
+          # value: 'python3 surrealist  obstacle --id case0 --obstacle 10 4 3 -5.5 2 0 30  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros'
+        - name: SEARCH_OBST_MUTATIONS
+          value: 'y,x,r,sy,sx,sz'
+        - name: SEARCH_OBST_MIN_ROUNDS
+          value: '2' #'4'
+        - name: SEARCH_OBST_DELTA
+          value: '4'
+        - name: SEARCH_OBST_DELTA_R
+          value: '30'
+        - name: SEARCH_OBST_MIN_DELTA
+          value: '0.1'
+        - name: SEARCH_OBST_MIN_DELTA_R
+          value: '0.5'
+        - name: SEARCH_OBST_MAX_STALL
+          value: '5'
+        - name: SEARCH_OBST_MAX_SAME
+          value: '3'
+        - name: SEARCH_CHANGE_THRESHOLD
+          value: '10' #'30'
+        # - name: DISTANCE_METHOD
+        #   value: frechet
+        # - name: SEARCH_CHANGE_THRESHOLD
+        #   value: '0.2'
+        - name: PLOT_TESTS_XYZ
+          value: 'True'
+        - name: DOCKER_TIMEOUT
+          value: '1000'
+        - name: WEBDAV_HOST
+          valueFrom:
+            secretKeyRef:
+              name: webdav
+              key: host        
+        - name: WEBDAV_ROOT
+          valueFrom:
+            secretKeyRef:
+              name: webdav
+              key: root    
+        - name: WEBDAV_USER
+          valueFrom:
+            secretKeyRef:
+              name: webdav
+              key: user           
+        - name: WEBDAV_PASS
+          valueFrom:
+            secretKeyRef:
+              name: webdav
+              key: pass  
+      volumeMounts:
+        - mountPath: /root/.kube/config
+          name: vol-k8s-conf
+          readOnly: true
+          subPath: k8s-config.yaml        
+      resources:
+        limits:
+          cpu: 1500m
+          memory: 15000Mi
+        requests: {}
+  affinity:
+  imagePullSecrets:
+    - name: dockerhub
+  initContainers:
+  restartPolicy: OnFailure
