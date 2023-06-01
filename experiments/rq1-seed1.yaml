@@ -1,0 +1,18 @@
+drone:
+  port: ros #{sitl, ros, cf}
+  params_file: experiments/case0-params.csv #csv file with the same structure as above 
+  mission_file: experiments/case0.plan
+
+simulation:
+  simulator: ros #{gazebo, jmavsim, ros} 
+  speed: 1
+  headless: true
+  obstacles: [3,3,3,  -8.64,1.74,0,  158.8] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+test:
+  commands_file: experiments/case0-commands.csv
+  speed: 1
+
+assertion:
+  log_file: experiments/case0.ulg
+  variable: trajectory
+

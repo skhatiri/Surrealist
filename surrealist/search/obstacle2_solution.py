@@ -32,9 +32,7 @@ class Obstacle2Solution(ObstacleSolution):
         logger.info(f"{len(results)} evalations completed")
         self.trajectories = [r.record for r in results]
         self.fitnesses = [self.get_fitness(r.record, goal) for r in results]
-        self.min_distances = [
-            self.min_distances.append(self.get_min_distance(r.record)) for r in results
-        ]
+        self.min_distances = [self.get_min_distance(r.record) for r in results]
         min_ind = self.fitnesses.index(min(self.fitnesses))
         self.experiment = results[min_ind]
         self.result = self.trajectories[min_ind]
