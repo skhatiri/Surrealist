@@ -244,7 +244,6 @@ class Search(object):
         upper_bound: Union[int, float],
         solution: Solution = None,
     ):
-
         if budget <= 0 or lower_bound >= upper_bound:
             return solution
 
@@ -292,7 +291,6 @@ class Search(object):
         mid_point: Union[int, float],
         solution: Solution = None,
     ):
-
         if budget <= 0:
             return solution
         budget -= 1
@@ -321,7 +319,6 @@ class Search(object):
 
         else:
             if comparison >= 1:
-
                 solution = mid_sol
                 return self.reverse_binary_search(
                     mutation_init, seed, budget, mid_point * 2, solution

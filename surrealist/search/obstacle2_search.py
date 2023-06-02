@@ -5,7 +5,7 @@ from .search import Search
 
 
 class Obstacle2Search(ObstacleSearch):
-    MUTATIONS_LIST = config("SEARCH_OBST_MUTATIONS", default="r,x,y")
+    MUTATIONS_LIST = config("SEARCH_OBST_MUTATIONS", default="x,y")
 
     def __init__(
         self,

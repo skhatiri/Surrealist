@@ -19,6 +19,8 @@ try:
     # from .search.command_projector_search import CommandProjectorSearch
     # from .search.command_solution import CommandSolution
     # from .search.command_segment_search import CommandSegmentSearch
+    from .search.obstacle3_search import Obstacle3Search
+    from .search.obstacle3_solution import Obstacle3Solution
     from .search.obstacle2_search import Obstacle2Search
     from .search.obstacle2_solution import Obstacle2Solution
     from .search.obstacle_search import ObstacleSearch
@@ -28,6 +30,8 @@ except:
     # from search.command_projector_search import CommandProjectorSearch
     # from search.command_solution import CommandSolution
     # from search.command_segment_search import CommandSegmentSearch
+    from search.obstacle3_search import Obstacle3Search
+    from search.obstacle3_solution import Obstacle3Solution
     from search.obstacle2_search import Obstacle2Search
     from search.obstacle2_solution import Obstacle2Solution
     from search.obstacle_search import ObstacleSearch
@@ -51,6 +55,7 @@ def arg_parse():
         choices=[
             "obstacle",
             "obstacle2",
+            "obstacle3",
             "projector",
             "segment",
         ],
@@ -196,6 +201,10 @@ def run_search(args):
         # goal = none
         seed_sol = Obstacle2Solution(seed_test)
         searcher = Obstacle2Search(seed_sol, args.n, args.path, args.id)
+    elif args.objective == "obstacle3":
+        # goal = none
+        seed_sol = Obstacle3Solution(seed_test)
+        searcher = Obstacle3Search(seed_sol, args.n, args.path, args.id)
 
     searcher.search(args.budget)
 

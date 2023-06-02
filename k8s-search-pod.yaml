@@ -14,7 +14,6 @@ spec:
   containers:
     - imagePullPolicy: Always
       name: container-0
-      __active: true
       image: skhatiri/surrealist
       stdin: true
       stdinOnce: false
@@ -32,7 +31,8 @@ spec:
           # RQ2 value: 'python3 surrealist  obstacle2 --seed experiments/rq2-seed.yaml --id rq2 -n 10 --budget 50 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/'
 
         - name: SEARCH_OBST_MUTATIONS
-          value: 'y,x,r,sy,sx,sz'
+          # value: 'y,x,r,sy,sx,sz'
+          value: 'y,x'
         - name: SEARCH_OBST_MIN_ROUNDS
           value: '2' #'4'
         - name: SEARCH_OBST_DELTA
