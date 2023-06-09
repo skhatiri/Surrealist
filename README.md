@@ -30,7 +30,7 @@ Starting from this replicated simulation test, SURREALIST generates variants in 
 The toolkit requires python >= 3.8 and has been tested with PX4 development environment on ubuntu 18.04 and 20.04
 
 1. Clone this repository and cd into its root directory
-2. `pip3 install -r requiremetns.txt`
+2. `pip3 install -r requirements.txt`
 3. Create a file named .env in the repository's root directory. Then copy and customize contents of [template.env](template.env) into it.
 
 ### Using Docker
