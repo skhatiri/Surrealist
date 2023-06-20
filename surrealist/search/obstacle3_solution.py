@@ -38,12 +38,17 @@ class Obstacle3Solution(Obstacle2Solution):
             self.average_trajectory.distance(r) for r in self.trajectories
         ]
         self.fitnesses = self.dtws_to_ave
-        dtw_term = mean(self.dtws_to_ave) - self.DETERMINISTIC_MAX_DTW
+        self.ave_dtw = mean(self.dtws_to_ave)
+        dtw_term = self.ave_dtw - self.DETERMINISTIC_MAX_DTW
         if dtw_term < 0:
             dtw_term = 0
-        obstacle_term = self.average_trajectory.distance_to_obstacles(
+
+        self.obstacle_distance = self.average_trajectory.distance_to_obstacles(
             self.test.simulation.obstacles
         )
+        obstacle_term = self.obstacle_distance
+
+        self.trajectory_change = self
         self.fitness = dtw_term - obstacle_term
         self.result = self.average_trajectory
 
@@ -65,8 +70,8 @@ class Obstacle3MutationParams(Obstacle2MutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle3Solution):
-        return f'{round(sol.min_distance,3)},{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.ave_dtw,3)},{round(sol.obstacle_distance,3)},{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):
-        return "min dist.,border, delta, x, y, l, w, h, r,[min dist.s],"
+        return "ave dtw,obst. dist.,border, delta, x, y, l, w, h, r,[min dist.s],"
