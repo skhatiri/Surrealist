@@ -16,22 +16,20 @@ class Obstacle3Solution(Obstacle2Solution):
     def __init__(self, test: DroneTest) -> None:
         super().__init__(test)
         self.mutation_type = Obstacle3MutationParams
-        # if self.fix_obstacle.to_box().equals(self.obstacle.to_box()):
-        #     super().__init__(None, mission_file, [fix_obstacle])
-        # else:
-        #     super().__init__(None, mission_file, [fix_obstacle, obstacle])
 
-    # def get_fitness(self, trajectory: Trajectory, goal: Trajectory):
-    #     sum_dist = trajectory.distance_to_obstacles(self.test.simulation.obstacles)
-    #     return sum_dist
-    #     # return -(sum_dist + 2 * self.get_min_distance(trajectory))
+    def get_fitness(self, trajectory: Trajectory):
+        dtw_term = self.ave_dtw - self.DETERMINISTIC_MAX_DTW
+        if dtw_term < 0:
+            dtw_term = 0
 
-    def process_simulations(
+        obstacle_term = trajectory.distance_to_obstacles(self.test.simulation.obstacles)
+        self.obstacle_distance = obstacle_term
+        return dtw_term - obstacle_term
+
+    def aggregate_simulations(
         self,
         results: List[DroneTestResult],
-        goal: Trajectory,
     ):
-        logger.info(f"{len(results)} evalations completed")
         self.trajectories = [r.record for r in results]
         self.average_trajectory = Trajectory.average(self.trajectories)
         self.dtws_to_ave = [
@@ -39,26 +37,16 @@ class Obstacle3Solution(Obstacle2Solution):
         ]
         self.fitnesses = self.dtws_to_ave
         self.ave_dtw = mean(self.dtws_to_ave)
-        dtw_term = self.ave_dtw - self.DETERMINISTIC_MAX_DTW
-        if dtw_term < 0:
-            dtw_term = 0
 
-        self.obstacle_distance = self.average_trajectory.distance_to_obstacles(
-            self.test.simulation.obstacles
-        )
-        obstacle_term = self.obstacle_distance
+        self.min_distances = [self.get_min_distance(r) for r in self.trajectories]
+        self.min_distance = self.get_min_distance(self.average_trajectory)
 
-        self.trajectory_change = self
-        self.fitness = dtw_term - obstacle_term
+        self.fitness = self.get_fitness(self.average_trajectory)
         self.result = self.average_trajectory
-
-        self.min_distances = [
-            r.distance_to_obstacles(self.test.simulation.obstacles)
-            for r in self.trajectories
-        ]
-        max_ind = self.fitnesses.index(max(self.fitnesses))
-        self.experiment = results[max_ind]
-        self.min_distance = obstacle_term
+        self.aggregate = DroneTestResult(
+            record=self.average_trajectory,
+        )
+        return self.aggregate
 
 
 class Obstacle3MutationParams(Obstacle2MutationParams):
@@ -70,7 +58,7 @@ class Obstacle3MutationParams(Obstacle2MutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle3Solution):
-        return f'{round(sol.ave_dtw,3)},{round(sol.obstacle_distance,3)},{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.ave_dtw,3)},{round(sol.obstacle_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):

@@ -182,8 +182,6 @@ def run_search(args):
             test=test_config,
             assertion=assertion_config,
         )
-    if seed_test.assertion is not None:
-        goal = seed_test.assertion.expectation
     if args.path is not None:
         Search.WEBDAV_DIR = args.path
     if args.id is not None:
@@ -196,13 +194,11 @@ def run_search(args):
 
     if args.objective == "obstacle":
         seed_sol = ObstacleSolution(seed_test)
-        searcher = ObstacleSearch(seed_sol, goal, args.n, args.path, args.id)
+        searcher = ObstacleSearch(seed_sol, args.n, args.path, args.id)
     elif args.objective == "obstacle2":
-        # goal = none
         seed_sol = Obstacle2Solution(seed_test)
         searcher = Obstacle2Search(seed_sol, args.n, args.path, args.id)
     elif args.objective == "obstacle3":
-        # goal = none
         seed_sol = Obstacle3Solution(seed_test)
         searcher = Obstacle3Search(seed_sol, args.n, args.path, args.id)
 

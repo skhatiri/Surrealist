@@ -16,14 +16,7 @@ class Obstacle2Search(ObstacleSearch):
     ) -> None:
         super().__init__(
             seed,
-            None,
             eval_runs,
             path,
             id,
         )
-
-    # def search_mutation(self, budget: int = 5):
-
-    #     # if self.seed.obstacle.to_box().equals(self.seed.fix_obstacle.to_box()):
-    #     #     self.best.fitness = Solution.INVALID_SOL_FITNESS
-    #     return super().search_mutation(budget)

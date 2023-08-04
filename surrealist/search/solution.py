@@ -10,7 +10,6 @@ from aerialist.px4.drone_test import (
 )
 from aerialist.px4.k8s_agent import K8sAgent
 from aerialist.px4.trajectory import Trajectory
-from aerialist.px4 import file_helper
 from aerialist.entry import execute_test
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,6 @@ class Solution(object):
 
     def evaluate(
         self,
-        goal: Trajectory | object,
         runs: int,
         iteration: int,
     ) -> None:
@@ -38,7 +36,7 @@ class Solution(object):
             return
 
         if self.result is not None:  # solution has been simulated before
-            self.fitness = self.get_fitness(self.result, goal)
+            self.fitness = self.get_fitness(self.result)
             return
 
         agent = AgentConfig(
@@ -48,7 +46,7 @@ class Solution(object):
             id=f"iter{iteration:03d}",
         )
         K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
-        results = execute_test(
+        test_results = execute_test(
             DroneTest(
                 drone=self.test.drone,
                 simulation=self.test.simulation,
@@ -57,39 +55,33 @@ class Solution(object):
                 agent=agent,
             )
         )
+        logger.info(f"{len(test_results)} evalations completed")
+        self.aggregate_simulations(test_results)
 
-        self.process_simulations(results, goal)
-
-    def process_simulations(
+    def aggregate_simulations(
         self,
         results: List[DroneTestResult],
-        goal: Trajectory,
     ):
-        logger.info(f"{len(results)} evalations completed")
         self.trajectories = [r.record for r in results]
-        self.fitnesses = [self.get_fitness(r.record, goal) for r in results]
+        self.fitnesses = [self.get_fitness(r.record) for r in results]
 
         median_ind = self.fitnesses.index(
             percentile(self.fitnesses, 50, interpolation="nearest")
         )
-        self.experiment = results[median_ind]
-        self.result = Trajectory.average(self.trajectories)
-        self.fitness = self.get_fitness(self.result, goal)
+        self.result = Trajectory.average([r.record for r in results])
+        self.fitness = self.get_fitness(self.result)
+        self.aggregate = DroneTestResult(
+            log_file=results[median_ind].log_file, record=self.result
+        )
+        return self.aggregate
 
-    def get_fitness(
-        self,
-        trajectory: Trajectory,
-        goal: Trajectory,
-    ):
-        return -goal.distance(trajectory)
+    def get_fitness(self, trajectory: Trajectory):
+        raise NotImplementedError()
 
     def compare_to(self, other: Solution):
         """compares the fitness of solutions,
         taking into account the fitness distribution in different simulation runs"""
-        distance = abs(self.get_fitness(self.result, other.result))
-        # relative_change = (self.fitness - other.fitness) / self.fitness
-        # if abs(relative_change) < self.CHANGE_THRESHOLD:
-        if distance < self.CHANGE_THRESHOLD:
+        if self.is_almost_identical(other):
             return 0
         else:
             if self.fitness > other.fitness:
@@ -97,25 +89,17 @@ class Solution(object):
             else:
                 return -1
 
-        # sim = similarity_test(self.fitnesses, other.fitnesses)
-        # if sim == True:
-        #     return 0
-        # elif sim == False:
-        #     if median(self.fitnesses) > median(other.fitnesses):
-        #         return 1
-        #     else:
-        #         return -1
-        # else:
-        #     logger.warning("non deciesive similairty")
-        #     return 0
+    def is_almost_identical(self, other: Solution):
+        distance = abs(self.result.distance(other.result))
+        return distance < self.CHANGE_THRESHOLD
 
     def mutate(self, params: MutationParams) -> Solution:
         raise NotImplementedError("This method must be overridden")
 
-    def plot(self, goal, iteration: int):
+    def plot(self, iteration: int):
         Trajectory.plot_multiple(
             self.trajectories,
-            goal,
+            self.goal if hasattr(self, "goal") else None,
             distance=-self.fitness,
             obstacles=self.test.simulation.obstacles
             if self.test.simulation is not None
@@ -123,7 +107,6 @@ class Solution(object):
             file_prefix=f"iter{iteration:03d}-",
             ave_trajectory=self.result,
         )
-        # Command.save_csv(self.commands,f'{self.DIR}{datetime.now().strftime("%m-%d %H-%M-%S")}.csv')
 
 
 class MutationParams(object):

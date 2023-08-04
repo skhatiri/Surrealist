@@ -15,29 +15,23 @@ class Obstacle2Solution(ObstacleSolution):
     def __init__(self, test: DroneTest) -> None:
         super().__init__(test)
         self.mutation_type = Obstacle2MutationParams
-        # if self.fix_obstacle.to_box().equals(self.obstacle.to_box()):
-        #     super().__init__(None, mission_file, [fix_obstacle])
-        # else:
-        #     super().__init__(None, mission_file, [fix_obstacle, obstacle])
+        self.goal = None
+        # TODO: handle obstacles overlaps
 
-    def get_fitness(self, trajectory: Trajectory, goal: Trajectory):
+    def get_fitness(self, trajectory: Trajectory):
         sum_dist = trajectory.distance_to_obstacles(self.test.simulation.obstacles)
         return -(sum_dist + 2 * self.get_min_distance(trajectory))
 
-    def process_simulations(
-        self,
-        results: List[DroneTestResult],
-        goal: Trajectory,
-    ):
-        logger.info(f"{len(results)} evalations completed")
+    def aggregate_simulations(self, results: List[DroneTestResult]):
         self.trajectories = [r.record for r in results]
-        self.fitnesses = [self.get_fitness(r.record, goal) for r in results]
-        self.min_distances = [self.get_min_distance(r.record) for r in results]
+        self.fitnesses = [self.get_fitness(r.record) for r in results]
         min_ind = self.fitnesses.index(min(self.fitnesses))
-        self.experiment = results[min_ind]
-        self.result = self.trajectories[min_ind]
         self.fitness = self.fitnesses[min_ind]
+        self.aggregate = results[min_ind]
+        self.result = results[min_ind].record
+        self.min_distances = [self.get_min_distance(r.record) for r in results]
         self.min_distance = self.min_distances[min_ind]
+        return self.aggregate
 
     def get_min_distance(self, trajectory: Trajectory):
         return min(
@@ -48,7 +42,9 @@ class Obstacle2Solution(ObstacleSolution):
         )
 
     def mutate(self, param: Obstacle2MutationParams) -> ObstacleSolution:
-        mutant_obstacle = self.move_border(self.obstacle, param.border, param.delta)
+        mutant_obstacle = self.modify_obstacle(
+            self.obstacle, param.property, param.delta
+        )
         if (
             mutant_obstacle.size.x <= 0
             or mutant_obstacle.size.y <= 0
@@ -78,7 +74,7 @@ class Obstacle2MutationParams(ObstacleMutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle2Solution):
-        return f'{round(sol.min_distance,3)},{self.border},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.min_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):

@@ -7,7 +7,15 @@ simulation:
   simulator: ros #{gazebo, jmavsim, ros} 
   speed: 1
   headless: true
-  obstacles: [7.625,5.0625,20,  10.1875,17.53125,0,  0,         7.625,5.0625,20,  -6.375,17.53125,0,  0] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+  # right
+  # obstacles: [7.625,5.0625,20,  9.75,17.53125,0,  0,         7.625,5.0625,20,  -6.375,17.53125,0,  0] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+  # up right 
+  # obstacles: [7.625,5.0625,20,  17.1875,27.53125,0,  0,         7.625,5.0625,20,  -6.375,17.53125,0,  0] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+  # up
+  # obstacles: [7.625,5.0625,20,  -6.375,37.53125,0,  0,         7.625,5.0625,20,  -6.375,17.53125,0,  0] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+  # up left
+  obstacles: [7.625,5.0625,20,  -26.375,32.53125,0,  0,         7.625,5.0625,20,  -6.375,17.53125,0,  0] #propetries of box shaped obstacles, [l,w,h,x,y,z,r]
+
 test:
   commands_file: experiments/auto-commands.csv
   speed: 1
@@ -16,3 +24,8 @@ assertion:
   log_file: experiments/auto1.ulg
   variable: trajectory
 
+# agent:
+#   engine: k8s # {k8s, docker, local}
+#   count: 10
+#   path: https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/
+#   id: non-deterministic

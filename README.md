@@ -78,7 +78,7 @@ Some of the common combination of the following arguments are listed here as sam
 
 - Generating challenging tests for autonomous flight in simulation, by finding optimal additional obstacle properties (box size, position, orientation):
 
-`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 -obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 --obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
 
 ## References
 
@@ -104,4 +104,4 @@ The software we developed is distributed under MIT license. See the [license](./
 ## Contacts
 
 - Sajad Khatiri
-  - Zurich University of Applied Science (ZHAW), Switzerland - mazr@zhaw.ch
+  - Zurich University of Applied Science (ZHAW), Switzerland - <mazr@zhaw.ch>

@@ -1,3 +1,5 @@
+AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up.yaml --id up-200 -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/ 
+
 #######surrealist command templates
 kubectl apply -f k8s-search.yaml --validate=false
 

@@ -20,19 +20,16 @@ class ObstacleSearch(Search):
     def __init__(
         self,
         seed: ObstacleSolution,
-        goal: Trajectory,
         eval_runs: int = 1,
         path=Search.WEBDAV_DIR,
         id=Search.SEARCH_FLD_NAME,
     ) -> None:
         super().__init__(
             seed,
-            goal,
             eval_runs,
             path,
             id,
         )
-        # Trajectory.DISTANCE_METHOD = "frechet"
 
     def search_mutation(self, budget: int = 100):
         improved = True
@@ -66,34 +63,3 @@ class ObstacleSearch(Search):
 
             rounds -= 1
             delta_factor /= math.sqrt(2)
-
-    def get_mutation_random(self):
-        next = ObstacleMutationParams()
-        rand = random.randint(0, 3)
-        delta = random.uniform(-5, 5)
-        scale = random.uniform(0.75, 1.25)
-        if rand == 0:
-            next.delta_x = delta
-        elif rand == 1:
-            next.delta_y = delta
-        elif rand == 2:
-            next.scale_l = scale
-        elif rand == 3:
-            next.scale_w = scale
-        elif rand == 4:
-            next.scale_h = scale
-
-        return next
-
-    def get_mutation_around(cls, last_mutation: ObstacleMutationParams):
-        pass
-
-    def get_mutation_invert(cls, last_mutation: ObstacleMutationParams):
-        next = ObstacleMutationParams()
-        next.delta_x = -last_mutation.delta_x
-        next.delta_y = -last_mutation.delta_y
-        next.scale_l = 2 - last_mutation.scale_l
-        next.scale_w = 2 - last_mutation.scale_w
-        next.scale_h = 2 - last_mutation.scale_h
-        next.inverted = True
-        return next

@@ -192,6 +192,235 @@ class Search(object):
         else:
             return (None, evaluations)
 
+    def psudo_binary_search(
+        self,
+        mutation_init: Callable[[Union[int, float]], MutationParams],
+        seed: Solution,
+        budget: int,
+        step: Union[int, float],
+        min: Union[int, float] = 0,
+    ):
+        if min != 0:
+            upper_band = min
+        else:
+            upper_band = step
+        best = None
+        while budget > 0:
+            budget -= 1
+            mutation = mutation_init(upper_band)
+            current_sol = seed.mutate(mutation)
+            current_sol.evaluate(self.runs, len(self.all_log))
+            comparison = current_sol.compare_to(seed if best is None else best)
+            self.log_step(
+                current_sol, mutation, comparison >= 1, comparison, "pre binary search"
+            )
+
+            if comparison <= -1 or (comparison == 0 and best is not None):
+                return self.binary_search(
+                    mutation_init,
+                    seed,
+                    budget,
+                    upper_band - step,
+                    upper_band,
+                    best,
+                )
+
+            if comparison >= 1:
+                best = current_sol
+
+            upper_band += step
+
+        return best
+
+    def binary_search(
+        self,
+        mutation_init: Callable[[Union[int, float]], MutationParams],
+        seed: Solution,
+        budget: int,
+        lower_bound: Union[int, float],
+        upper_bound: Union[int, float],
+        solution: Solution = None,
+    ):
+        if budget <= 0 or lower_bound >= upper_bound:
+            return solution
+
+        mid = (lower_bound + upper_bound) / 2
+        if type(lower_bound) is int and type(upper_bound) is int:
+            mid = int(mid)
+        if mid == lower_bound or mid == upper_bound:
+            return solution
+
+        budget -= 1
+        mutation = mutation_init(mid)
+
+        if mutation is None:  # contract for no applyable mutation
+            return self.binary_search(
+                mutation_init, seed, budget, lower_bound, mid, solution
+            )
+
+        mid_sol = seed.mutate(mutation)
+        mid_sol.evaluate(self.runs, len(self.all_log))
+
+        best = solution
+        if best is None:
+            best = seed
+
+        comparison = mid_sol.compare_to(best)
+        self.log_step(mid_sol, mutation, comparison >= 1, comparison, "binary search")
+        if comparison >= 1:
+            solution = mid_sol
+            return self.binary_search(
+                mutation_init, seed, budget, mid, upper_bound, solution
+            )
+
+        elif comparison <= -1:
+            return self.binary_search(
+                mutation_init, seed, budget, lower_bound, mid, solution
+            )
+        else:
+            return solution
+
+    def reverse_binary_search(
+        self,
+        mutation_init: Callable[[Union[int, float]], MutationParams],
+        seed: Solution,
+        budget: int,
+        mid_point: Union[int, float],
+        solution: Solution = None,
+    ):
+        if budget <= 0:
+            return solution
+        budget -= 1
+        mutation = mutation_init(mid_point)
+        mid_sol = seed.mutate(mutation)
+        mid_sol.evaluate(self.runs, len(self.all_log))
+
+        best = solution
+        if best is None:
+            best = seed
+
+        lower = mid_point / 2
+        if type(mid_point) is int:
+            lower = int(lower)
+
+        comparison = mid_sol.compare_to(best)
+        self.log_step(mid_sol, mutation, comparison >= 1, comparison)
+        if comparison <= -1:
+            return solution
+            # if solution is not None:
+            #     return self.binary_search(
+            #         mutation_init, seed, budget, lower, mid_point, solution
+            #     )
+            # else:
+            #     return None
+
+        else:
+            if comparison >= 1:
+                solution = mid_sol
+                return self.reverse_binary_search(
+                    mutation_init, seed, budget, mid_point * 2, solution
+                )
+            elif solution is None:
+                return self.reverse_binary_search(
+                    mutation_init, seed, budget, mid_point * 2, solution
+                )
+            else:
+                return solution
+                # return self.binary_search(
+                #     mutation_init, seed, budget, lower, mid_point, solution
+                # )
+
+    def random_search(self, max_tries=5):
+        try:
+            # todo: integrate opposite in the method get_next_mutation, probably as a state variable
+
+            logger.info(f"searching with {max_tries} tries")
+            self.best.evaluate(self.runs, len(self.all_log))
+            self.log_step(self.best, self.mutation_type(), True, 0, f"seed")
+
+            tries = 0
+            next_mutation = self.get_next_mutation()
+            taken_steps = 0
+            while tries < max_tries:
+                mutation = next_mutation
+                neighbour = self.best.mutate(mutation)
+                neighbour.evaluate(self.runs, len(self.all_log))
+                comparison = neighbour.compare_to(self.best)
+                if comparison > 0:
+                    self.best = neighbour
+                    taken_steps += 1
+                    tries = 0
+                    next_mutation = mutation
+                else:
+                    if comparison <= -1 and taken_steps == 0:
+                        taken_steps = -1
+                    next_mutation = self.get_next_mutation(mutation, taken_steps)
+                    taken_steps = 0
+                    tries += 1
+
+                self.log_step(
+                    neighbour,
+                    mutation,
+                    comparison >= 1,
+                    comparison,
+                )
+
+        except Exception as e:
+            logger.exception("search terminated:" + str(e), exc_info=True)
+
+        file_helper.upload("logs/lib.log", self.webdav_dir)
+        file_helper.upload("logs/root.log", self.webdav_dir)
+
+    def get_next_mutation(
+        self, last_mutation: MutationParams = None, last_steps: int = 0
+    ) -> MutationParams:
+        if last_mutation is None or last_steps <= 0:
+            # last mutation is useless or decreasing the fitness
+            # we go in a new random direction
+            return self.get_mutation_random()
+        else:
+            # last mutation is applied as much as we can improve
+            # we take shorter steps to fine tune the improvements
+            return self.get_mutation_around(last_mutation)
+
+    def get_mutation_random(self):
+        raise NotImplementedError()
+
+    def get_mutation_around(cls, last_mutation: MutationParams):
+        raise NotImplementedError()
+
+    def get_mutation_invert(cls, last_mutation: MutationParams):
+        raise NotImplementedError()
+
+    #### from ObstacleSearch
+    # def get_mutation_random(self):
+    #     next = ObstacleMutationParams()
+    #     rand = random.randint(0, 3)
+    #     delta = random.uniform(-5, 5)
+    #     scale = random.uniform(0.75, 1.25)
+    #     if rand == 0:
+    #         next.delta_x = delta
+    #     elif rand == 1:
+    #         next.delta_y = delta
+    #     elif rand == 2:
+    #         next.scale_l = scale
+    #     elif rand == 3:
+    #         next.scale_w = scale
+    #     elif rand == 4:
+    #         next.scale_h = scale
+
+    #     return next
+
+    # def get_mutation_invert(cls, last_mutation: ObstacleMutationParams):
+    #     next = ObstacleMutationParams()
+    #     next.delta_x = -last_mutation.delta_x
+    #     next.delta_y = -last_mutation.delta_y
+    #     next.scale_l = 2 - last_mutation.scale_l
+    #     next.scale_w = 2 - last_mutation.scale_w
+    #     next.scale_h = 2 - last_mutation.scale_h
+    #     next.inverted = True
+    #     return next
+
     def plot(self):
         index = range(len(self.best_log))
 

@@ -38,15 +38,11 @@ class TestSolution(unittest.TestCase):
         test_config = TestConfig(
             commands_file="experiments/t0.ulg",
         )
-        seed = DroneTest(
-            drone_config,
-            simulation_config,
-            test_config,
-        )
-        goal = AssertionConfig(
+        assertion_config = AssertionConfig(
             log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
-        ).expectation
+        )
+        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         Trajectory.WEBDAV_DIR = (
             "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
@@ -54,12 +50,11 @@ class TestSolution(unittest.TestCase):
         sol = Solution(seed)
         iter = 200
         sol.evaluate(
-            goal=goal,
             runs=3,
             iteration=iter,
         )
         logger.info(sol.fitness)
-        sol.plot(goal, iter)
+        sol.plot(iter)
         return sol.fitness
 
     def test_obstacle_solution(self):
@@ -76,15 +71,11 @@ class TestSolution(unittest.TestCase):
         test_config = TestConfig(
             commands_file="experiments/auto_commands.csv",
         )
-        seed = DroneTest(
-            drone_config,
-            simulation_config,
-            test_config,
-        )
-        goal = AssertionConfig(
+        assertion_config = AssertionConfig(
             log_file="experiments/auto1.ulg",
             variable=AssertionConfig.TRAJECTORY,
-        ).expectation
+        )
+        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         Trajectory.WEBDAV_DIR = (
             "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
@@ -92,10 +83,9 @@ class TestSolution(unittest.TestCase):
         sol = ObstacleSolution(seed)
         iter = 271
         sol.evaluate(
-            goal=goal,
             runs=3,
             iteration=iter,
         )
         logger.info(sol.fitness)
-        sol.plot(goal, iter)
+        sol.plot(iter)
         return sol.fitness
