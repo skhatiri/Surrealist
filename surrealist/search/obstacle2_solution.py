@@ -25,12 +25,12 @@ class Obstacle2Solution(ObstacleSolution):
     def aggregate_simulations(self, results: List[DroneTestResult]):
         self.trajectories = [r.record for r in results]
         self.fitnesses = [self.get_fitness(r.record) for r in results]
-        min_ind = self.fitnesses.index(min(self.fitnesses))
-        self.fitness = self.fitnesses[min_ind]
-        self.aggregate = results[min_ind]
-        self.result = results[min_ind].record
+        max_ind = self.fitnesses.index(max(self.fitnesses))
+        self.fitness = self.fitnesses[max_ind]
+        self.aggregate = results[max_ind]
+        self.result = results[max_ind].record
         self.min_distances = [self.get_min_distance(r.record) for r in results]
-        self.min_distance = self.min_distances[min_ind]
+        self.min_distance = self.min_distances[max_ind]
         return self.aggregate
 
     def get_min_distance(self, trajectory: Trajectory):
