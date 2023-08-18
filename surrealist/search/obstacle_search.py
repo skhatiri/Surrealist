@@ -4,6 +4,7 @@ from aerialist.px4.trajectory import Trajectory
 from .obstacle_solution import ObstacleMutationParams, ObstacleSolution
 from .search import Search
 import math
+import random
 
 
 class ObstacleSearch(Search):
@@ -14,8 +15,10 @@ class ObstacleSearch(Search):
     MAX_STALL = config("SEARCH_OBST_MAX_STALL", default=4, cast=int)
     MAX_SAME = config("SEARCH_OBST_MAX_SAME", default=5, cast=int)
     MUTATIONS_LIST = config("SEARCH_OBST_MUTATIONS", default="r,x,y,sx,sy,sz")
+    RANDOM_ORDER = config("SEARCH_RANDOM_ORDER", default=False, cast=bool)
     MUTATIONS = [op.strip() for op in MUTATIONS_LIST.split(",")]
     MIN_ROUNDS = config("SEARCH_OBST_MIN_ROUNDS", default=4, cast=int)
+    MAX_STEPS = config("SEARCH_OBST_MAX_STEPS", default=1000, cast=int)
 
     def __init__(
         self,
@@ -35,9 +38,12 @@ class ObstacleSearch(Search):
         improved = True
         delta_factor = 1
         rounds = self.MIN_ROUNDS
+        max_steps = self.MAX_STEPS
         while improved:
             improved = False
             opr_budget = budget // (len(self.MUTATIONS) * max(1, rounds))
+            if self.RANDOM_ORDER:
+                random.shuffle(self.MUTATIONS)
             for mut_opr in self.MUTATIONS:
                 if mut_opr == "r":
                     delta = self.DELTA_R * delta_factor
@@ -55,6 +61,7 @@ class ObstacleSearch(Search):
                     self.MAX_STALL,
                     self.MAX_SAME,
                     min_delta,
+                    max_steps,
                 )
                 budget -= evals
                 if sol is not None:
@@ -62,4 +69,5 @@ class ObstacleSearch(Search):
                     improved = True
 
             rounds -= 1
+            max_steps *= 2
             delta_factor /= math.sqrt(2)

@@ -97,6 +97,7 @@ class Search(object):
         max_stall_iterations=5,
         max_same_steps=2,
         min_step_size: Union[int, float] = 0,
+        max_taken_steps: int = 1000,
     ):
         best_param = default_param  # set to default (identity mutation)
         best_sol = seed
@@ -106,7 +107,12 @@ class Search(object):
         positive_moves = 0
         negative_moves = 0
         stall_iterations = 0
-        while evaluations <= budget and stall_iterations <= max_stall_iterations:
+        taken_steps = 0
+        while (
+            evaluations <= budget
+            and stall_iterations <= max_stall_iterations
+            and taken_steps < max_taken_steps
+        ):
             # initializing the solutions to compare
             # either new evaluations or from the cache
             param_up = best_param + step
@@ -141,6 +147,7 @@ class Search(object):
                 comparison = 1
                 best_sol = sol_up
                 best_param = param_up
+                taken_steps += 1
                 stall_iterations = 0
                 positive_moves += 1
                 negative_moves = 0
@@ -153,6 +160,7 @@ class Search(object):
                 comparison = -1
                 best_sol = sol_down
                 best_param = param_down
+                taken_steps += 1
                 stall_iterations = 0
                 negative_moves += 1
                 positive_moves = 0
