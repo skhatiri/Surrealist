@@ -18,14 +18,14 @@ spec:
       stdin: true
       stdinOnce: false
       command:
-        - /bin/bash 
-        - -c 
-        - "$(COMMAND)"
+        # - /bin/bash 
+        # - -c 
+        # - "$(COMMAND)"
       tty: true
       env:
         - name: COMMAND
           # value: 'python3 surrealist --help'
-          value: 'AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-right-rotated.yaml --id up-right-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/ ; AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-rotated.yaml --id up-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/ ; AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-left-rotated.yaml --id up-left-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/'
+          # value: 'AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-right-rotated.yaml --id up-right-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/ ; AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-rotated.yaml --id up-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/ ; AVE_GAMMA=200 SEARCH_OBST_DELTA=4 SEARCH_CHANGE_THRESHOLD=0 SEARCH_OBST_MUTATIONS=x,y python3 surrealist obstacle3 --seed https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/seeds/up-left-rotated.yaml --id up-left-rotated -n 9 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/supervisor/'
           # value: 'python3 surrealist  obstacle --id case0 --obstacle 10 4 3 -5.5 2 0 30  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros'
           # RQ1-1 value: 'python3 surrealist  obstacle --seed experiments/rq1-seed1.yaml --id rq1-1 -n 5 --budget 200 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/'
           # RQ1-2 value: 'python3 surrealist  obstacle --seed experiments/rq1-seed2.yaml --id rq1-2 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/'

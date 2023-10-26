@@ -46,9 +46,9 @@ class Obstacle2Solution(ObstacleSolution):
             self.obstacle, param.property, param.delta
         )
         if (
-            mutant_obstacle.size.x <= 0
-            or mutant_obstacle.size.y <= 0
-            or mutant_obstacle.size.z <= 0
+            mutant_obstacle.size.l <= 0
+            or mutant_obstacle.size.w <= 0
+            or mutant_obstacle.size.h <= 0
             or mutant_obstacle.intersects(self.test.simulation.obstacles[1])
         ):
             # mutation is invalid (size has negative elements or overlaps with other obstacles)
@@ -58,7 +58,7 @@ class Obstacle2Solution(ObstacleSolution):
         else:
             mutant_test = copy.deepcopy(self.test)
             mutant_test.simulation.obstacles[0] = Obstacle(
-                mutant_obstacle.size, mutant_obstacle.position, mutant_obstacle.angle
+                mutant_obstacle.size, mutant_obstacle.position
             )
             mutant = type(self)(mutant_test)
 
@@ -74,7 +74,7 @@ class Obstacle2MutationParams(ObstacleMutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle2Solution):
-        return f'{round(sol.min_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.x},{sol.obstacle.size.y},{sol.obstacle.size.z},{sol.obstacle.angle},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.min_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.h},{sol.obstacle.position.r},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):
