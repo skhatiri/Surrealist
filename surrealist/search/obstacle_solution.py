@@ -45,37 +45,70 @@ class ObstacleSolution(Solution):
         mutant_obstacle = copy.deepcopy(obstacle)
         ### resize the obstacle with fixed center position
         if property == "sx":
-            mutant_obstacle.size.l += delta
+            mutant_obstacle.size = Obstacle.Size(
+                l=mutant_obstacle.size.l + delta,
+                w=mutant_obstacle.size.w,
+                h=mutant_obstacle.size.h,
+            )
+            # mutant_obstacle.size.l += delta
         if property == "sy":
-            mutant_obstacle.size.w += delta
+            mutant_obstacle.size = Obstacle.Size(
+                l=mutant_obstacle.size.l,
+                w=mutant_obstacle.size.w + delta,
+                h=mutant_obstacle.size.h,
+            )
+            # mutant_obstacle.size.w += delta
         if property == "sz":
-            mutant_obstacle.size.h += delta
+            mutant_obstacle.size = Obstacle.Size(
+                l=mutant_obstacle.size.l,
+                w=mutant_obstacle.size.w,
+                h=mutant_obstacle.size.h + delta,
+            )
+            # mutant_obstacle.size.h += delta
 
         ### change position
         if property == "x":
-            mutant_obstacle.position.x += delta
+            mutant_obstacle.position = Obstacle.Position(
+                x=mutant_obstacle.position.x + delta,
+                y=mutant_obstacle.position.y,
+                z=mutant_obstacle.position.z,
+                r=mutant_obstacle.position.r,
+            )
+            # mutant_obstacle.position.x += delta
         if property == "y":
-            mutant_obstacle.position.y += delta
+            mutant_obstacle.position = Obstacle.Position(
+                x=mutant_obstacle.position.x,
+                y=mutant_obstacle.position.y + delta,
+                z=mutant_obstacle.position.z,
+                r=mutant_obstacle.position.r,
+            )
+            # mutant_obstacle.position.y += delta
 
         ### rotation
         if property == "r":
-            mutant_obstacle.position.r += delta
+            mutant_obstacle.position = Obstacle.Position(
+                x=mutant_obstacle.position.x,
+                y=mutant_obstacle.position.y,
+                z=mutant_obstacle.position.z,
+                r=mutant_obstacle.position.r + delta,
+            )
+            # mutant_obstacle.position.r += delta
 
         ### moving only one of the borders
-        if property == "x1":
-            mutant_obstacle.size.l += delta
-        if property == "y1":
-            mutant_obstacle.size.w += delta
-        if property == "z1":
-            mutant_obstacle.size.h += delta
-        if property == "x2":
-            mutant_obstacle.size.l += delta
-            mutant_obstacle.position.x -= delta * math.cos(mutant_obstacle.position.r)
-            mutant_obstacle.position.y -= delta * math.sin(mutant_obstacle.position.r)
-        if property == "y2":
-            mutant_obstacle.size.w += delta
-            mutant_obstacle.position.x -= delta * math.sin(mutant_obstacle.position.r)
-            mutant_obstacle.position.y -= delta * math.cos(mutant_obstacle.position.r)
+        # if property == "x1":
+        #     mutant_obstacle.size.l += delta
+        # if property == "y1":
+        #     mutant_obstacle.size.w += delta
+        # if property == "z1":
+        #     mutant_obstacle.size.h += delta
+        # if property == "x2":
+        #     mutant_obstacle.size.l += delta
+        #     mutant_obstacle.position.x -= delta * math.cos(mutant_obstacle.position.r)
+        #     mutant_obstacle.position.y -= delta * math.sin(mutant_obstacle.position.r)
+        # if property == "y2":
+        #     mutant_obstacle.size.w += delta
+        #     mutant_obstacle.position.x -= delta * math.sin(mutant_obstacle.position.r)
+        #     mutant_obstacle.position.y -= delta * math.cos(mutant_obstacle.position.r)
 
         return mutant_obstacle
 
