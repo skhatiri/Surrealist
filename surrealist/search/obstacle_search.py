@@ -16,6 +16,7 @@ class ObstacleSearch(Search):
     MAX_SAME = config("SEARCH_OBST_MAX_SAME", default=5, cast=int)
     MUTATIONS_LIST = config("SEARCH_OBST_MUTATIONS", default="r,x,y,sx,sy,sz")
     RANDOM_ORDER = config("SEARCH_RANDOM_ORDER", default=False, cast=bool)
+    RANDOM_ORDER_1ST = config("SEARCH_RANDOM_ORDER_1ST", default=True, cast=bool)
     MUTATIONS = [op.strip() for op in MUTATIONS_LIST.split(",")]
     MIN_ROUNDS = config("SEARCH_OBST_MIN_ROUNDS", default=4, cast=int)
     MAX_STEPS = config("SEARCH_OBST_MAX_STEPS", default=1000, cast=int)
@@ -43,7 +44,8 @@ class ObstacleSearch(Search):
             improved = False
             opr_budget = budget // (len(self.MUTATIONS) * max(1, rounds))
             if self.RANDOM_ORDER:
-                random.shuffle(self.MUTATIONS)
+                if rounds != self.MIN_ROUNDS or self.RANDOM_ORDER_1ST:
+                    random.shuffle(self.MUTATIONS)
             for mut_opr in self.MUTATIONS:
                 if mut_opr == "r":
                     delta = self.DELTA_R * delta_factor
