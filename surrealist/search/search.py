@@ -27,8 +27,7 @@ class Search(object):
     ) -> None:
         super().__init__()
         logger.info(f"init searcher with {eval_runs} evaluations")
-        if not path.endswith("/"):
-            path += "/"
+
         if id is None or id == "":
             folder_name = file_helper.time_filename()
         else:
@@ -40,11 +39,15 @@ class Search(object):
         seed.DIR = self.dir
 
         if path is not None:
+            if not path.endswith("/"):
+                path += "/"
             self.webdav_dir = f"{path}{folder_name}/"
             file_helper.create_dir(self.webdav_dir)
             Trajectory.WEBDAV_DIR = self.webdav_dir
             Solution.WEBDAV_DIR = self.webdav_dir
-
+        else:
+            self.webdav_dir = None
+        logger.info(f"webdav dir:{self.webdav_dir}")
         self.mutation_type = seed.mutation_type
         self.csv_logger = CsvLogger(
             filename=f"{self.dir}log.csv",
@@ -60,7 +63,7 @@ class Search(object):
         self.best = seed
 
     def __del__(self):
-        if self.WEBDAV_DIR is not None:
+        if self.webdav_dir is not None:
             logger.info("uploading logs at cleanup")
             file_helper.upload("logs/lib.txt", self.webdav_dir)
             file_helper.upload("logs/root.txt", self.webdav_dir)
@@ -75,14 +78,15 @@ class Search(object):
             self.search_mutation(budget)
         except Exception as e:
             logger.exception("search terminated:" + str(e), exc_info=True)
-            file_helper.upload("logs/lib.txt", self.webdav_dir)
-            file_helper.upload("logs/root.txt", self.webdav_dir)
+            if self.webdav_dir is not None:
+                file_helper.upload("logs/lib.txt", self.webdav_dir)
+                file_helper.upload("logs/root.txt", self.webdav_dir)
             self.log_step(self.best, self.mutation_type(), True, 0, "final solution")
             raise e
         self.log_step(self.best, self.mutation_type(), True, 0, "final solution")
-
-        file_helper.upload("logs/lib.txt", self.webdav_dir)
-        file_helper.upload("logs/root.txt", self.webdav_dir)
+        if self.webdav_dir is not None:
+            file_helper.upload("logs/lib.txt", self.webdav_dir)
+            file_helper.upload("logs/root.txt", self.webdav_dir)
 
     def search_mutation(self, budget: int = 5):
         raise NotImplementedError()
@@ -217,7 +221,8 @@ class Search(object):
 
         fig.savefig(f"{self.dir}progress.png")
         plt.close(fig)
-        file_helper.upload(self.dir + "progress.png", self.webdav_dir)
+        if self.webdav_dir is not None:
+            file_helper.upload(self.dir + "progress.png", self.webdav_dir)
 
     def log_step(
         self,
@@ -232,7 +237,8 @@ class Search(object):
         if desc != None:
             log += "," + desc
         self.csv_logger.info(log)
-        file_helper.upload(self.csv_logger.filename, self.webdav_dir)
+        if self.webdav_dir is not None:
+            file_helper.upload(self.csv_logger.filename, self.webdav_dir)
 
         self.all_log.append(sol.fitness)
         if taken:

@@ -8,9 +8,15 @@ from aerialist.px4.drone_test import (
     DroneTestResult,
     AgentConfig,
 )
-from aerialist.px4.k8s_agent import K8sAgent
 from aerialist.px4.trajectory import Trajectory
 from aerialist.entry import execute_test
+
+AGENT = config("AGENT", default=AgentConfig.DOCKER)
+if AGENT == AgentConfig.K8S:
+    from aerialist.px4.k8s_agent import K8sAgent
+if AGENT == AgentConfig.DOCKER:
+    from aerialist.px4.docker_agent import DockerAgent
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,13 +45,17 @@ class Solution(object):
             self.fitness = self.get_fitness(self.result)
             return
 
+        if AGENT == AgentConfig.K8S:
+            K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
+        if AGENT == AgentConfig.DOCKER:
+            DockerAgent.COPY_DIR = self.DIR
         agent = AgentConfig(
-            engine=AgentConfig.K8S,
+            engine=AGENT,
             count=runs,
             path=self.WEBDAV_DIR,
             id=f"iter{iteration:03d}",
         )
-        K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
+
         test_results = execute_test(
             DroneTest(
                 drone=self.test.drone,
@@ -101,9 +111,11 @@ class Solution(object):
             self.trajectories,
             self.goal if hasattr(self, "goal") else None,
             distance=-self.fitness,
-            obstacles=self.test.simulation.obstacles
-            if self.test.simulation is not None
-            else None,
+            obstacles=(
+                self.test.simulation.obstacles
+                if self.test.simulation is not None
+                else None
+            ),
             file_prefix=f"iter{iteration:03d}-",
             ave_trajectory=self.result,
         )

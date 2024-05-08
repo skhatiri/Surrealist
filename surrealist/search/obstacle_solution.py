@@ -1,6 +1,5 @@
 from __future__ import annotations
 import copy
-import math
 from aerialist.px4.drone_test import DroneTest
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory

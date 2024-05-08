@@ -1,7 +1,6 @@
 from decouple import config
 import random
-from aerialist.px4.trajectory import Trajectory
-from .obstacle_solution import ObstacleMutationParams, ObstacleSolution
+from .obstacle_solution import ObstacleSolution
 from .search import Search
 import math
 import random

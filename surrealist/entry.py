@@ -56,8 +56,8 @@ def arg_parse():
             "obstacle",
             "obstacle2",
             "obstacle3",
-            "projector",
-            "segment",
+            # "projector",
+            # "segment",
         ],
     )
     parser.add_argument(
@@ -153,9 +153,11 @@ def run_search(args):
         seed_test = DroneTest.from_yaml(args.seed)
     else:
         drone_config = DroneConfig(
-            port=DroneConfig.ROS_PORT
-            if args.simulator == SimulationConfig.ROS
-            else DroneConfig.SITL_PORT,
+            port=(
+                DroneConfig.ROS_PORT
+                if args.simulator == SimulationConfig.ROS
+                else DroneConfig.SITL_PORT
+            ),
             params_file=args.params,
             mission_file=args.mission,
         )
@@ -182,11 +184,6 @@ def run_search(args):
             test=test_config,
             assertion=assertion_config,
         )
-    if args.path is not None:
-        Search.WEBDAV_DIR = args.path
-    if args.id is not None:
-        Search.SEARCH_FLD_NAME = args.id
-
     # if args.projection != 1:
     #     seed_test = seed_test.project(
     #         args.projection, args.projection, args.projection, args.projection
