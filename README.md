@@ -33,7 +33,7 @@ The toolkit requires python >= 3.8 and has been tested with PX4 development envi
 2. `pip3 install -r requiremetns.txt`
 3. Create a file named .env in the repository's root directory. Then copy and customize contents of [template.env](template.env) into it.
 
-### Using Docker
+<!-- ### Using Docker
 
 You can use the dockerfile to build a Docker image with all the requirements.
 
@@ -43,7 +43,7 @@ You can use the dockerfile to build a Docker image with all the requirements.
 You can now execute all the commands in the containers bash.
 
 **Note:** Your user should be able to run docker commands without sudo. [check here](https://docs.docker.com/engine/install/linux-postinstall/)
-**Note:** The .env for the docker image come from [template.env](template.env). You can customize them using environment variables for the Docker container.
+**Note:** The .env for the docker image come from [template.env](template.env). You can customize them using environment variables for the Docker container. -->
 
 ## Command-Line Interface
 
@@ -74,11 +74,15 @@ Some of the common combination of the following arguments are listed here as sam
 
 - Replicating an autonomous flight in simulation, by finding optimal obstacle properties (box size, position, orientation):
 
-`python3 surrealist  obstacle --id RQ1 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+`AGENT=docker python3 surrealist obstacle --id RQ1 --seed experiments/rq1-seed1.yaml -n 1 --budget 100`
+
+<!-- `python3 surrealist  obstacle --id RQ1 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros` -->
 
 - Generating challenging tests for autonomous flight in simulation, by finding optimal additional obstacle properties (box size, position, orientation):
 
-`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 --obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros`
+`AGENT=docker python3 surrealist obstacle2 --id RQ2 --seed experiments/rq2-seed.yaml -n 1 --budget 100`
+<!-- 
+`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 --obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros` -->
 
 ## References
 
@@ -88,14 +92,26 @@ If you use this tool in your research, please cite the following papers:
   - [Preprint](https://skhatiri.ir/papers/surrealist.pdf)
   - [Experiments Dataset](https://doi.org/10.5281/zenodo.6525021)
 
-````{code-block} bibtex
-@inproceedings{khatiri2023simulation,
-  title={Simulation-based test case generation for unmanned aerial vehicles in the neighborhood of real flights},
-  author={Khatiri, Sajad and Panichella, Sebastiano and Tonella, Paolo},
-  booktitle={2023 16th IEEE International Conference on Software Testing, Verification and Validation (ICST)},
-  year={2023},
-}
-````
+  ````{code-block} bibtex
+  @inproceedings{khatiri2023simulation,
+    title={Simulation-based test case generation for unmanned aerial vehicles in the neighborhood of real flights},
+    author={Khatiri, Sajad and Panichella, Sebastiano and Tonella, Paolo},
+    booktitle={2023 16th IEEE International Conference on Software Testing, Verification and Validation (ICST)},
+    year={2023},
+  }
+  ````
+
+- **Sajad Khatiri**, Sebastiano Panichella, and Paolo Tonella, "Simulation-based Testing of Unmanned Aerial Vehicles with Aerialist," *In 2024 International Conference on Software Engineering (ICSE)*
+  - [Preprint](https://skhatiri.ir/papers/aerialist.pdf)
+
+  ````{code-block} bibtex
+  @inproceedings{icse2024Aerialist,
+    title={Simulation-based Testing of Unmanned Aerial Vehicles with Aerialist},
+    author={Khatiri, Sajad and Panichella, Sebastiano and Tonella, Paolo},
+    booktitle={International Conference on Software Engineering (ICSE)},
+    year={2024},
+  }
+  ````
 
 ## License
 

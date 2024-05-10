@@ -7,8 +7,12 @@ from csv_logger import CsvLogger
 import logging
 from aerialist.px4 import file_helper
 from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.drone_test import AgentConfig
 from .solution import Solution, MutationParams
 
+AGENT = config("AGENT", default=AgentConfig.DOCKER)
+if AGENT == AgentConfig.DOCKER:
+    from aerialist.px4.docker_agent import DockerAgent
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +41,8 @@ class Search(object):
         makedirs(self.dir)
         Trajectory.DIR = self.dir
         seed.DIR = self.dir
+        if AGENT == AgentConfig.DOCKER:
+            DockerAgent.COPY_DIR = self.dir
 
         if path is not None:
             if not path.endswith("/"):

@@ -47,8 +47,7 @@ class Solution(object):
 
         if AGENT == AgentConfig.K8S:
             K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
-        if AGENT == AgentConfig.DOCKER:
-            DockerAgent.COPY_DIR = self.DIR
+
         agent = AgentConfig(
             engine=AGENT,
             count=runs,
