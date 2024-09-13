@@ -1,2 +1,3 @@
-git+https://github.com/skhatiri/Aerialist.git
+# git+https://github.com/skhatiri/Aerialist.git
+
 

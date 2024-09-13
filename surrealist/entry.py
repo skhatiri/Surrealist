@@ -19,6 +19,8 @@ try:
     # from .search.command_projector_search import CommandProjectorSearch
     # from .search.command_solution import CommandSolution
     # from .search.command_segment_search import CommandSegmentSearch
+    from .search.obstacle3_search import Obstacle3Search
+    from .search.obstacle3_solution import Obstacle3Solution
     from .search.obstacle2_search import Obstacle2Search
     from .search.obstacle2_solution import Obstacle2Solution
     from .search.obstacle_search import ObstacleSearch
@@ -28,6 +30,8 @@ except:
     # from search.command_projector_search import CommandProjectorSearch
     # from search.command_solution import CommandSolution
     # from search.command_segment_search import CommandSegmentSearch
+    from search.obstacle3_search import Obstacle3Search
+    from search.obstacle3_solution import Obstacle3Solution
     from search.obstacle2_search import Obstacle2Search
     from search.obstacle2_solution import Obstacle2Solution
     from search.obstacle_search import ObstacleSearch
@@ -51,8 +55,9 @@ def arg_parse():
         choices=[
             "obstacle",
             "obstacle2",
-            "projector",
-            "segment",
+            "obstacle3",
+            # "projector",
+            # "segment",
         ],
     )
     parser.add_argument(
@@ -148,9 +153,11 @@ def run_search(args):
         seed_test = DroneTest.from_yaml(args.seed)
     else:
         drone_config = DroneConfig(
-            port=DroneConfig.ROS_PORT
-            if args.simulator == SimulationConfig.ROS
-            else DroneConfig.SITL_PORT,
+            port=(
+                DroneConfig.ROS_PORT
+                if args.simulator == SimulationConfig.ROS
+                else DroneConfig.SITL_PORT
+            ),
             params_file=args.params,
             mission_file=args.mission,
         )
@@ -177,13 +184,6 @@ def run_search(args):
             test=test_config,
             assertion=assertion_config,
         )
-    if seed_test.assertion is not None:
-        goal = seed_test.assertion.expectation
-    if args.path is not None:
-        Search.WEBDAV_DIR = args.path
-    if args.id is not None:
-        Search.SEARCH_FLD_NAME = args.id
-
     # if args.projection != 1:
     #     seed_test = seed_test.project(
     #         args.projection, args.projection, args.projection, args.projection
@@ -191,11 +191,13 @@ def run_search(args):
 
     if args.objective == "obstacle":
         seed_sol = ObstacleSolution(seed_test)
-        searcher = ObstacleSearch(seed_sol, goal, args.n, args.path, args.id)
+        searcher = ObstacleSearch(seed_sol, args.n, args.path, args.id)
     elif args.objective == "obstacle2":
-        # goal = none
         seed_sol = Obstacle2Solution(seed_test)
         searcher = Obstacle2Search(seed_sol, args.n, args.path, args.id)
+    elif args.objective == "obstacle3":
+        seed_sol = Obstacle3Solution(seed_test)
+        searcher = Obstacle3Search(seed_sol, args.n, args.path, args.id)
 
     searcher.search(args.budget)
 

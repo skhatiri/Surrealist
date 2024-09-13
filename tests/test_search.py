@@ -38,20 +38,15 @@ class TestSearch(unittest.TestCase):
         test_config = TestConfig(
             commands_file="experiments/t0.ulg",
         )
-        seed = DroneTest(
-            drone_config,
-            simulation_config,
-            test_config,
-        )
-        seed_sol = Solution(seed)
-
-        goal = AssertionConfig(
+        assertion_config = AssertionConfig(
             log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
-        ).expectation
+        )
+        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
+        seed_sol = Solution(seed)
 
         Search.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        searcher = Search(seed_sol, goal, 3, MutationParams)
+        searcher = Search(seed_sol, 3, MutationParams)
         try:
             searcher.search(1)
         except:
