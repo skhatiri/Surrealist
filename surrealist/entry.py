@@ -12,7 +12,7 @@ from aerialist.px4.drone_test import (
     DroneConfig,
     DroneTest,
     SimulationConfig,
-    TestConfig,
+    MissionConfig,
 )
 
 try:
@@ -167,7 +167,7 @@ def run_search(args):
             headless=True,
             obstacles=args.obstacle + args.obstacle2,
         )
-        test_config = TestConfig(
+        test_config = MissionConfig(
             commands_file=args.commands,
             speed=1,
         )
