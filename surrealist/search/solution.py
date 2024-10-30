@@ -9,6 +9,7 @@ from aerialist.px4.drone_test import (
     AgentConfig,
 )
 from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.plot import Plot
 from aerialist.entry import execute_test
 
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
@@ -106,19 +107,18 @@ class Solution(object):
         raise NotImplementedError("This method must be overridden")
 
     def plot(self, iteration: int):
-        if len(self.trajectories) > 0:
-            self.trajectories[0].plot_multiple(
-                self.trajectories,
-                self.goal if hasattr(self, "goal") else None,
-                distance=-self.fitness,
-                obstacles=(
-                    self.test.simulation.obstacles
-                    if self.test.simulation is not None
-                    else None
-                ),
-                file_prefix=f"iter{iteration:03d}-",
-                ave_trajectory=self.result,
-            )
+        Plot.plot_trajectory(
+            self.trajectories,
+            self.goal if hasattr(self, "goal") else None,
+            distance=-self.fitness,
+            obstacles=(
+                self.test.simulation.obstacles
+                if self.test.simulation is not None
+                else None
+            ),
+            file_prefix=f"iter{iteration:03d}-",
+            ave_trajectory=self.result,
+        )
 
 
 class MutationParams(object):

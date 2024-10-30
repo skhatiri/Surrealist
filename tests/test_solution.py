@@ -9,7 +9,7 @@ from aerialist.px4.drone_test import (
     SimulationConfig,
     TestConfig,
 )
-from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.plot import Plot
 from surrealist.search.solution import Solution
 from surrealist.search.obstacle_solution import ObstacleSolution
 from surrealist.search.obstacle2_solution import Obstacle2Solution
@@ -44,9 +44,7 @@ class TestSolution(unittest.TestCase):
         )
         seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        Trajectory.WEBDAV_DIR = (
-            "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        )
+        Plot.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         sol = Solution(seed)
         iter = 200
         sol.evaluate(
@@ -77,9 +75,7 @@ class TestSolution(unittest.TestCase):
         )
         seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        Trajectory.WEBDAV_DIR = (
-            "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        )
+        Plot.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         sol = ObstacleSolution(seed)
         iter = 271
         sol.evaluate(
