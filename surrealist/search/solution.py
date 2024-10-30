@@ -110,7 +110,8 @@ class Solution(object):
         Plot.plot_trajectory(
             self.trajectories,
             self.goal if hasattr(self, "goal") else None,
-            distance=-self.fitness,
+            distance=True,  # let Aerialist compute distance to obstacles
+            # distance=-self.fitness,
             obstacles=(
                 self.test.simulation.obstacles
                 if self.test.simulation is not None
