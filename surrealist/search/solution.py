@@ -118,6 +118,9 @@ class Solution(object):
             ),
             file_prefix=f"iter{iteration:03d}-",
             ave_trajectory=self.result,
+            waypoints=(
+                None if self.test.mission is None else self.test.mission.waypoints
+            ),
         )
 
 
