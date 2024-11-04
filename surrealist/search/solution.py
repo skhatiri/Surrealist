@@ -38,13 +38,18 @@ class Solution(object):
         self,
         runs: int,
         iteration: int,
-    ) -> None:
+    ) -> int:
         if hasattr(self, "fitness"):  # solution has been simulated before
-            return
+            return 0
+
+        self.is_valid = self.check_validity()
+        if not self.is_valid:
+            self.fitness = self.INVALID_SOL_FITNESS
+            return 0
 
         if self.result is not None:  # solution has been simulated before
             self.fitness = self.get_fitness(self.result)
-            return
+            return 0
 
         if AGENT == AgentConfig.K8S:
             K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
@@ -67,6 +72,10 @@ class Solution(object):
         )
         logger.info(f"{len(test_results)} evalations completed")
         self.aggregate_simulations(test_results)
+        return len(test_results)
+
+    def check_validity(self):
+        return True
 
     def aggregate_simulations(
         self,

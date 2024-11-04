@@ -16,7 +16,6 @@ class Obstacle2Solution(ObstacleSolution):
         super().__init__(test)
         self.mutation_type = Obstacle2MutationParams
         self.goal = None
-        # TODO: handle obstacles overlaps
 
     def get_fitness(self, trajectory: Trajectory):
         sum_dist = trajectory.distance_to_obstacles(self.test.simulation.obstacles)
@@ -41,28 +40,19 @@ class Obstacle2Solution(ObstacleSolution):
             ]
         )
 
-    def mutate(self, param: Obstacle2MutationParams) -> ObstacleSolution:
-        mutant_obstacle = self.modify_obstacle(
-            self.obstacle, param.property, param.delta
-        )
-        if (
-            mutant_obstacle.size.l <= 0
-            or mutant_obstacle.size.w <= 0
-            or mutant_obstacle.size.h <= 0
-            or mutant_obstacle.intersects(self.test.simulation.obstacles[1])
-        ):
-            # mutation is invalid (size has negative elements or overlaps with other obstacles)
-            mutant = copy.deepcopy(self)
-            mutant.obstacle = mutant_obstacle
-            mutant.fitness = self.INVALID_SOL_FITNESS
-        else:
-            mutant_test = copy.deepcopy(self.test)
-            mutant_test.simulation.obstacles[0] = Obstacle(
-                mutant_obstacle.size, mutant_obstacle.position
-            )
-            mutant = type(self)(mutant_test)
+    def check_validity(self):
+        for obst in self.test.simulation.obstacles:
+            if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
+                return False
 
-        return mutant
+        for i in range(len(self.test.simulation.obstacles) - 1):
+            for j in range(i + 1, len(self.test.simulation.obstacles)):
+                if self.test.simulation.obstacles[i].intersects(
+                    self.test.simulation.obstacles[j]
+                ):
+                    return False
+
+        return True
 
 
 class Obstacle2MutationParams(ObstacleMutationParams):

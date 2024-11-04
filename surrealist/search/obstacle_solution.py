@@ -20,23 +20,19 @@ class ObstacleSolution(Solution):
         mutant_obstacle = self.modify_obstacle(
             self.obstacle, param.property, param.delta
         )
-        if (
-            mutant_obstacle.size.l <= 0
-            or mutant_obstacle.size.w <= 0
-            or mutant_obstacle.size.h <= 0
-        ):
-            # mutation is invalid (size has negative elements)
-            mutant = copy.deepcopy(self)
-            mutant.obstacle = mutant_obstacle
-            mutant.fitness = self.INVALID_SOL_FITNESS
-        else:
-            mutant_test = copy.deepcopy(self.test)
-            mutant_test.simulation.obstacles[0] = Obstacle(
-                mutant_obstacle.size, mutant_obstacle.position
-            )
-            mutant = type(self)(mutant_test)
+        mutant_test = copy.deepcopy(self.test)
+        mutant_test.simulation.obstacles[0] = Obstacle(
+            mutant_obstacle.size, mutant_obstacle.position
+        )
+        mutant = type(self)(mutant_test)
 
         return mutant
+
+    def check_validity(self):
+        for obst in self.test.simulation.obstacles:
+            if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
+                return False
+        return True
 
     def modify_obstacle(
         self, obstacle: Obstacle, property: str, delta: float

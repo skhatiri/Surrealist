@@ -132,10 +132,11 @@ class Search(object):
             else:
                 mut_up = mutation_init(param_up)
                 sol_up = seed.mutate(mut_up)
-                sol_up.evaluate(self.runs, len(self.all_log))
+                evals = sol_up.evaluate(self.runs, len(self.all_log))
+                if evals > 0:
+                    sol_up_eval = True
+                    evaluations += 1
                 eval_map[param_up] = sol_up
-                sol_up_eval = True
-                evaluations += 1
 
             param_down = best_param - step
             if param_down in eval_map:
@@ -144,16 +145,21 @@ class Search(object):
             else:
                 mut_down = mutation_init(param_down)
                 sol_down = seed.mutate(mut_down)
-                sol_down.evaluate(
+                evals = sol_down.evaluate(
                     self.runs,
                     len(self.all_log) + sol_up_eval,
                 )
+                if evals > 0:
+                    sol_down_eval = True
+                    evaluations += 1
                 eval_map[param_down] = sol_down
-                sol_down_eval = True
-                evaluations += 1
 
             # comparing the solutions to take the best direction
-            if sol_up.compare_to(best_sol) >= 1 and sol_up.compare_to(sol_down) >= 1:
+            if (
+                sol_up.is_valid
+                and sol_up.compare_to(best_sol) >= 1
+                and sol_up.compare_to(sol_down) >= 1
+            ):
                 comparison = 1
                 best_sol = sol_up
                 best_param = param_up
@@ -165,7 +171,9 @@ class Search(object):
                     step *= 2
 
             elif (
-                sol_down.compare_to(best_sol) >= 1 and sol_down.compare_to(sol_up) >= 1
+                sol_down.is_valid
+                and sol_down.compare_to(best_sol) >= 1
+                and sol_down.compare_to(sol_up) >= 1
             ):
                 comparison = -1
                 best_sol = sol_down
@@ -180,7 +188,9 @@ class Search(object):
                 comparison = 0
                 step = step / 2
                 if step < min_step_size or (
-                    sol_up.compare_to(best_sol) == 0
+                    sol_up.is_valid
+                    and sol_up.compare_to(best_sol) == 0
+                    and sol_down.is_valid
                     and sol_down.compare_to(best_sol) == 0
                 ):
                     stall_iterations = 1000
