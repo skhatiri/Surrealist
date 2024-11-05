@@ -158,7 +158,7 @@ class Search(object):
             if (
                 sol_up.is_valid
                 and sol_up.compare_to(best_sol) >= 1
-                and sol_up.compare_to(sol_down) >= 1
+                and ((not sol_down.is_valid) or sol_up.compare_to(sol_down) >= 1)
             ):
                 comparison = 1
                 best_sol = sol_up
@@ -173,7 +173,7 @@ class Search(object):
             elif (
                 sol_down.is_valid
                 and sol_down.compare_to(best_sol) >= 1
-                and sol_down.compare_to(sol_up) >= 1
+                and ((not sol_up.is_valid) or sol_down.compare_to(sol_up) >= 1)
             ):
                 comparison = -1
                 best_sol = sol_down
