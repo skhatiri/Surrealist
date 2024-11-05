@@ -126,9 +126,9 @@ class Search(object):
             # initializing the solutions to compare
             # either new evaluations or from the cache
             param_up = best_param + step
+            sol_up_eval = False
             if param_up in eval_map:
                 sol_up = eval_map[param_up]
-                sol_up_eval = False
             else:
                 mut_up = mutation_init(param_up)
                 sol_up = seed.mutate(mut_up)
@@ -139,9 +139,9 @@ class Search(object):
                 eval_map[param_up] = sol_up
 
             param_down = best_param - step
+            sol_down_eval = False
             if param_down in eval_map:
                 sol_down = eval_map[param_down]
-                sol_down_eval = False
             else:
                 mut_down = mutation_init(param_down)
                 sol_down = seed.mutate(mut_down)
