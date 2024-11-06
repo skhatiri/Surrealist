@@ -1,9 +1,7 @@
 from __future__ import annotations
 import logging
 from typing import List
-import copy
 from aerialist.px4.drone_test import DroneTest, DroneTestResult
-from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 
 from .obstacle_solution import ObstacleMutationParams, ObstacleSolution
@@ -64,8 +62,8 @@ class Obstacle2MutationParams(ObstacleMutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle2Solution):
-        return f'{round(sol.min_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.h},{sol.obstacle.position.r},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.min_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.r},{sol.obstacle.size.h},{sol.obstacle.position.r},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):
-        return "min dist.,border, delta, x, y, l, w, h, r,[min dist.s],"
+        return "min dist.,border, delta, x, y, l, w, rd, h, r,[min dist.s],"

@@ -58,8 +58,8 @@ class Obstacle3MutationParams(Obstacle2MutationParams):
         super().__init__(border, delta)
 
     def log_str(self, sol: Obstacle3Solution):
-        return f'{round(sol.ave_dtw,3)},{round(sol.obstacle_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.h},{sol.obstacle.position.r},"{str([round(fit,1) for fit in sol.min_distances])}"'
+        return f'{round(sol.ave_dtw,3)},{round(sol.obstacle_distance,3)},{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.r},{sol.obstacle.size.h},{sol.obstacle.position.r},"{str([round(fit,1) for fit in sol.min_distances])}"'
 
     @classmethod
     def log_header(cls):
-        return "ave dtw,obst. dist.,border, delta, x, y, l, w, h, r,[min dist.s],"
+        return "ave dtw,obst. dist.,border, delta, x, y, l, w, rd, h, r,[min dist.s],"

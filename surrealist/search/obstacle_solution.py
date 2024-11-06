@@ -22,7 +22,7 @@ class ObstacleSolution(Solution):
         )
         mutant_test = copy.deepcopy(self.test)
         mutant_test.simulation.obstacles[0] = Obstacle(
-            mutant_obstacle.size, mutant_obstacle.position
+            mutant_obstacle.size, mutant_obstacle.position, mutant_obstacle.shape
         )
         mutant = type(self)(mutant_test)
 
@@ -44,6 +44,7 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l + delta,
                 w=mutant_obstacle.size.w,
                 h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.l += delta
         if property == "sy":
@@ -51,6 +52,7 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l,
                 w=mutant_obstacle.size.w + delta,
                 h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.w += delta
         if property == "sz":
@@ -58,8 +60,16 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l,
                 w=mutant_obstacle.size.w,
                 h=mutant_obstacle.size.h + delta,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.h += delta
+        if property == "sr":
+            mutant_obstacle.size = Obstacle.Size(
+                l=mutant_obstacle.size.l,
+                w=mutant_obstacle.size.w,
+                h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r + (delta / 2),
+            )
 
         ### change position
         if property == "x":
@@ -122,8 +132,8 @@ class ObstacleMutationParams(MutationParams):
         self.delta = delta
 
     def log_str(self, sol: ObstacleSolution):
-        return f"{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.h},{sol.obstacle.position.r}"
+        return f"{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.r},{sol.obstacle.size.h},{sol.obstacle.position.r}"
 
     @classmethod
     def log_header(cls):
-        return "property, delta, x, y, l, w, h, r,"
+        return "property, delta, x, y, l, w, rd, h, r,"
