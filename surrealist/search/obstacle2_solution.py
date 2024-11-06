@@ -39,9 +39,8 @@ class Obstacle2Solution(ObstacleSolution):
         )
 
     def check_validity(self):
-        for obst in self.test.simulation.obstacles:
-            if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
-                return False
+        if not super().check_validity():
+            return False
 
         for i in range(len(self.test.simulation.obstacles) - 1):
             for j in range(i + 1, len(self.test.simulation.obstacles)):

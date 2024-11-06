@@ -30,8 +30,12 @@ class ObstacleSolution(Solution):
 
     def check_validity(self):
         for obst in self.test.simulation.obstacles:
-            if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
-                return False
+            if obst.shape == obst.BOX:
+                if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
+                    return False
+            if obst.shape == obst.CYLINDER:
+                if obst.size.r <= 0 or obst.size.h <= 0:
+                    return False
         return True
 
     def modify_obstacle(
