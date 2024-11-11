@@ -70,9 +70,27 @@ class Solution(object):
                 agent=agent,
             )
         )
+        if len(test_results) == 0:
+            # no logs were extracted, probably an issue with test execution
+            # retry once
+            logger.error(f"No logs were extracted, retrying once...")
+            test_results = execute_test(
+                DroneTest(
+                    drone=self.test.drone,
+                    simulation=self.test.simulation,
+                    mission=self.test.mission,
+                    assertion=self.test.assertion,
+                    agent=agent,
+                )
+            )
         logger.info(f"{len(test_results)} evalations completed")
-        self.aggregate_simulations(test_results)
-        return len(test_results)
+        if len(test_results) > 0:
+            self.aggregate_simulations(test_results)
+            return len(test_results)
+        else:
+            self.is_valid = False
+            self.fitness = self.INVALID_SOL_FITNESS
+            return 0
 
     def check_validity(self):
         return True
