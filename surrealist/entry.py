@@ -16,27 +16,9 @@ from aerialist.px4.drone_test import (
 )
 
 try:
-    # from .search.command_projector_search import CommandProjectorSearch
-    # from .search.command_solution import CommandSolution
-    # from .search.command_segment_search import CommandSegmentSearch
-    from .search.obstacle3_search import Obstacle3Search
-    from .search.obstacle3_solution import Obstacle3Solution
-    from .search.obstacle2_search import Obstacle2Search
-    from .search.obstacle2_solution import Obstacle2Solution
-    from .search.obstacle_search import ObstacleSearch
-    from .search.obstacle_solution import ObstacleSolution
-    from .search.search import Search
+    from .search.search_factory import SearchFactory
 except:
-    # from search.command_projector_search import CommandProjectorSearch
-    # from search.command_solution import CommandSolution
-    # from search.command_segment_search import CommandSegmentSearch
-    from search.obstacle3_search import Obstacle3Search
-    from search.obstacle3_solution import Obstacle3Solution
-    from search.obstacle2_search import Obstacle2Search
-    from search.obstacle2_solution import Obstacle2Solution
-    from search.obstacle_search import ObstacleSearch
-    from search.obstacle_solution import ObstacleSolution
-    from search.search import Search
+    from search.search_factory import SearchFactory
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +47,12 @@ def arg_parse():
         default=10,
         type=int,
         help="global budget of the search algorithm",
+    )
+    parser.add_argument(
+        "--seed-count",
+        default=1,
+        type=int,
+        help="number of seeds to generate",
     )
     parser.add_argument(
         "--id",
@@ -189,17 +177,16 @@ def run_search(args):
     #         args.projection, args.projection, args.projection, args.projection
     #     )
 
-    if args.objective == "obstacle":
-        seed_sol = ObstacleSolution(seed_test)
-        searcher = ObstacleSearch(seed_sol, args.n, args.path, args.id)
-    elif args.objective == "obstacle2":
-        seed_sol = Obstacle2Solution(seed_test)
-        searcher = Obstacle2Search(seed_sol, args.n, args.path, args.id)
-    elif args.objective == "obstacle3":
-        seed_sol = Obstacle3Solution(seed_test)
-        searcher = Obstacle3Search(seed_sol, args.n, args.path, args.id)
-
-    searcher.search(args.budget)
+    factory = SearchFactory(
+        seed_test,
+        args.objective,
+        args.budget,
+        args.n,
+        args.seed_count,
+        args.path,
+        args.id,
+    )
+    factory.search()
 
 
 def config_loggers():

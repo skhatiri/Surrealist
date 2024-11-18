@@ -133,6 +133,10 @@ class Solution(object):
     def mutate(self, params: MutationParams) -> Solution:
         raise NotImplementedError("This method must be overridden")
 
+    def generate_seeds(self, n: int):
+        # TODO: implement randomized seed generation for subclasses
+        return [self]
+
     def plot(self, iteration: int):
         Plot.plot_trajectory(
             self.trajectories,
