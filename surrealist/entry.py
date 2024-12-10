@@ -25,7 +25,7 @@ def arg_parse():
     subparsers = main_parser.add_subparsers()
     parser = subparsers.add_parser(name="generate", description="generate test cases")
 
-    parser.add_argument("--seed", default=None, help="seed test description yaml file")
+    parser.add_argument("--seed", required=True, help="seed test description yaml file")
 
     # search configs
     parser.add_argument(
@@ -88,7 +88,7 @@ def arg_parse():
     )
     evalute_parser.add_argument(
         "--tests",
-        default=None,
+        required=True,
         help="test suite address (root folder)",
     )
     evalute_parser.add_argument(
@@ -134,15 +134,13 @@ def run_search(args):
 
 def run_evaluate(args):
     factory = SearchFactory(
-        DroneTest(),
-        args.objective,
-        args.budget,
-        args.n,
-        args.seed_count,
-        args.path,
-        args.id,
+        seed_test=DroneTest(),
+        search_method=args.objective,
+        simulations_count=args.n,
+        path=args.path,
+        id=args.id,
     )
-    factory.search()
+    factory.evaluate(args.tests)
 
 
 def config_loggers():
