@@ -134,7 +134,7 @@ def run_search(args):
 
 def run_evaluate(args):
     factory = SearchFactory(
-        seed_test=DroneTest(),
+        seed_test=None,
         search_method=args.objective,
         simulations_count=args.n,
         path=args.path,

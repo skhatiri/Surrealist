@@ -221,7 +221,7 @@ class Search(object):
             return (None, evaluations)
 
     def evaluate(self, solutions: List[Solution]):
-        if solutions in None or len(solutions) == 0:
+        if solutions is None or len(solutions) == 0:
             logger.error("no tests provided to evaluate")
             return
         logger.info(f"re_evaluating {len(solutions)} solutions")

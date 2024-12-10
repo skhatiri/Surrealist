@@ -37,12 +37,16 @@ class SearchFactory(object):
             self.seed_type = Obstacle3Solution
             self.search_type = Obstacle3Search
 
-        self.seed = self.seed_type(seed_test)
-        if seeds_count == 1:
-            self.seed_solutions = [self.seed]
-        elif seeds_count > 1:
-            logger.info(f"generating {seeds_count} seeds...")
-            self.seed_solutions = self.seed.generate_seeds(seeds_count)
+        if seed_test is not None:
+            self.seed = self.seed_type(seed_test)
+            if seeds_count == 1:
+                self.seed_solutions = [self.seed]
+            elif seeds_count > 1:
+                logger.info(f"generating {seeds_count} seeds...")
+                self.seed_solutions = self.seed.generate_seeds(seeds_count)
+        else:
+            self.seed = None
+            self.seed_solutions = []
 
         self.seeds_count = seeds_count
         self.simulations_count = simulations_count
@@ -61,8 +65,11 @@ class SearchFactory(object):
     def evaluate(self, test_suite_path: str):
         logger.info(f"loading test suite at {test_suite_path} ...")
         solutions = self.seed_type.load_folder(test_suite_path)
+        if solutions is None or len(solutions) == 0:
+            logger.error("no tests found to evaluate")
+            return
         logger.info(f"evaluating {len(solutions)} tests ...")
         searcher = self.search_type(
-            self.seed, self.simulations_count, self.path, self.id
+            solutions[0], self.simulations_count, self.path, self.id
         )
         searcher.evaluate(solutions)
