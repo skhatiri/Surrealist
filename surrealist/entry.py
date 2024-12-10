@@ -181,7 +181,7 @@ def main():
         config_loggers()
         args = arg_parse()
         logger.info(f"preparing the experiment environment...{args}")
-        run_search(args)
+        args.func(args)
 
     except Exception as e:
         logger.exception("program terminated:" + str(e), exc_info=True)
