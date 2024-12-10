@@ -155,6 +155,14 @@ class Solution(object):
             ),
         )
 
+    @classmethod
+    def load_folder(cls, search_folder: str = None) -> List[Solution]:
+        tests = DroneTest.load_folder(
+            search_folder, pattern="iter*.yaml", from_sub_folders=True
+        )
+        solutions = [cls(t) for t in tests]
+        return solutions
+
 
 class MutationParams(object):
     def __init__(self) -> None:

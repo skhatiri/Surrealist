@@ -57,3 +57,12 @@ class SearchFactory(object):
                 self.seed_solutions[i], self.simulations_count, self.path, self.id
             )
             searcher.search(self.budget)
+
+    def evaluate(self, test_suite_path: str):
+        logger.info(f"loading test suite at {test_suite_path} ...")
+        solutions = self.seed_type.load_folder(test_suite_path)
+        logger.info(f"evaluating {len(solutions)} tests ...")
+        searcher = self.search_type(
+            self.seed, self.simulations_count, self.path, self.id
+        )
+        searcher.evaluate(solutions)

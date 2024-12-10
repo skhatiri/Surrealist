@@ -7,13 +7,7 @@ from decouple import config
 
 config("MAKEING_SURE_TO_INIT_CONFIG_BEFORE_LOADING_AERIALIST", default=True)
 from aerialist.px4.trajectory import Trajectory
-from aerialist.px4.drone_test import (
-    AssertionConfig,
-    DroneConfig,
-    DroneTest,
-    SimulationConfig,
-    MissionConfig,
-)
+from aerialist.px4.drone_test import DroneTest
 
 try:
     from .search.search_factory import SearchFactory
@@ -25,9 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 def arg_parse():
-    parser = ArgumentParser(
-        description="Search for best simulation-based test configurations to replicate the field test scenario"
+    main_parser = ArgumentParser(
+        description="Surrealist Test Generation",
     )
+    subparsers = main_parser.add_subparsers()
+    parser = subparsers.add_parser(name="generate", description="generate test cases")
+
     parser.add_argument("--seed", default=None, help="seed test description yaml file")
 
     # search configs
@@ -59,13 +56,6 @@ def arg_parse():
         default=None,
         help="experiment id",
     )
-    # parser.add_argument(
-    #     "-p",
-    #     "--projection",
-    #     default=1,
-    #     type=float,
-    #     help="initial projection on the original commands",
-    # )
 
     # agent configs
     parser.add_argument(
@@ -79,57 +69,48 @@ def arg_parse():
         default=None,
         help="cloud output path to copy logs",
     )
-
-    # drone configs
-    parser.add_argument(
-        "--mission",
-        default=None,
-        help="input mission file address",
-    )
-    parser.add_argument(
-        "--params",
-        default=None,
-        help="params file address",
-    )
-
-    # simulator configs
-    parser.add_argument(
-        "--simulator",
-        default=config("SIMULATOR", default="gazebo"),
-        choices=["gazebo", "jmavsim", "ros"],
-        help="the simulator environment to run",
-    )
-    parser.add_argument(
-        "--obstacle",
-        nargs=7,
-        type=float,
-        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
-        default=[],
-    )
-    parser.add_argument(
-        "--obstacle2",
-        nargs=7,
-        type=float,
-        help="obstacle poisition and size to put in simulation environment: [x1,y1,z1,x2,y2,z2] in order",
-        default=[],
-    )
-
-    # test configs
-    parser.add_argument(
-        "--commands",
-        default=None,
-        help="input commands file address",
-    )
-
-    # assertion configs
-    parser.add_argument(
-        "--log",
-        default=None,
-        help="original log file address",
-    )
-
     parser.set_defaults(func=run_search)
-    args = parser.parse_args()
+
+    # evaluation parser
+    evalute_parser = subparsers.add_parser(
+        name="evaluate", description="evaluate given test suite"
+    )
+    evalute_parser.add_argument(
+        "objective",
+        help="search objective",
+        choices=[
+            "obstacle",
+            "obstacle2",
+            "obstacle3",
+            # "projector",
+            # "segment",
+        ],
+    )
+    evalute_parser.add_argument(
+        "--tests",
+        default=None,
+        help="test suite address (root folder)",
+    )
+    evalute_parser.add_argument(
+        "--id",
+        default=None,
+        help="experiment id",
+    )
+    # agent configs
+    evalute_parser.add_argument(
+        "-n",
+        default=1,
+        type=int,
+        help="no. of parallel runs",
+    )
+    evalute_parser.add_argument(
+        "--path",
+        default=None,
+        help="cloud output path to copy logs",
+    )
+    evalute_parser.set_defaults(func=run_evaluate)
+
+    args = main_parser.parse_args()
     return args
 
 
@@ -137,48 +118,23 @@ def run_search(args):
     if args.objective == "projector" or args.objective == "segment":
         Trajectory.IGNORE_AUTO_MODES = True
 
-    if args.seed is not None:
-        seed_test = DroneTest.from_yaml(args.seed)
-    else:
-        drone_config = DroneConfig(
-            port=(
-                DroneConfig.ROS_PORT
-                if args.simulator == SimulationConfig.ROS
-                else DroneConfig.SITL_PORT
-            ),
-            params_file=args.params,
-            mission_file=args.mission,
-        )
-        simulation_config = SimulationConfig(
-            simulator=args.simulator,
-            speed=1,
-            headless=True,
-            obstacles=args.obstacle + args.obstacle2,
-        )
-        test_config = MissionConfig(
-            commands_file=args.commands,
-            speed=1,
-        )
-        if args.log is not None:
-            assertion_config = AssertionConfig(
-                log_file=args.log,
-                variable=AssertionConfig.TRAJECTORY,
-            )
-        else:
-            assertion_config = None
-        seed_test = DroneTest(
-            drone=drone_config,
-            simulation=simulation_config,
-            test=test_config,
-            assertion=assertion_config,
-        )
-    # if args.projection != 1:
-    #     seed_test = seed_test.project(
-    #         args.projection, args.projection, args.projection, args.projection
-    #     )
+    seed_test = DroneTest.from_yaml(args.seed)
 
     factory = SearchFactory(
         seed_test,
+        args.objective,
+        args.budget,
+        args.n,
+        args.seed_count,
+        args.path,
+        args.id,
+    )
+    factory.search()
+
+
+def run_evaluate(args):
+    factory = SearchFactory(
+        DroneTest(),
         args.objective,
         args.budget,
         args.n,

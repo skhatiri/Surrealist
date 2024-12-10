@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable, List, Union
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from os import makedirs
@@ -219,6 +219,34 @@ class Search(object):
             return (best_sol, evaluations)
         else:
             return (None, evaluations)
+
+    def evaluate(self, solutions: List[Solution]):
+        if solutions in None or len(solutions) == 0:
+            logger.error("no tests provided to evaluate")
+            return
+        logger.info(f"re_evaluating {len(solutions)} solutions")
+        self.best = None
+        try:
+            for sol in solutions:
+                taken = False
+                sol.evaluate(self.runs, len(self.all_log))
+                if sol.is_valid and (
+                    self.best is None or sol.compare_to(self.best) >= 1
+                ):
+                    taken = True
+                    self.best = sol
+                self.log_step(sol, self.mutation_type(), taken, 0, "evaluation")
+            self.log_step(self.best, self.mutation_type(), True, 0, "best solution")
+
+        except Exception as e:
+            logger.exception("evaluation terminated:" + str(e), exc_info=True)
+            if self.webdav_dir is not None:
+                file_helper.upload("logs/lib.txt", self.webdav_dir)
+                file_helper.upload("logs/root.txt", self.webdav_dir)
+            raise e
+        if self.webdav_dir is not None:
+            file_helper.upload("logs/lib.txt", self.webdav_dir)
+            file_helper.upload("logs/root.txt", self.webdav_dir)
 
     def plot(self):
         index = range(len(self.best_log))
