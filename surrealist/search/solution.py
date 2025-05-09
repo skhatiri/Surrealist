@@ -1,4 +1,5 @@
 from __future__ import annotations
+from os import path
 from typing import List
 from decouple import config
 from numpy import percentile
@@ -11,7 +12,7 @@ from aerialist.px4.drone_test import (
 from aerialist.px4.trajectory import Trajectory
 from aerialist.px4.plot import Plot
 from aerialist.entry import execute_test
-
+from aerialist.px4 import file_helper
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
 if AGENT == AgentConfig.K8S:
     from aerialist.px4.k8s_agent import K8sAgent
@@ -156,11 +157,29 @@ class Solution(object):
         )
 
     @classmethod
-    def load_folder(cls, search_folder: str = None) -> List[Solution]:
-        tests = DroneTest.load_folder(
-            search_folder, pattern="iter*.yaml", from_sub_folders=True
+    def load_folder(cls, search_folder: str = None, load_existing_logs=False) -> List[Solution]:
+        tests_folder = file_helper.get_local_folder(search_folder)
+        test_files = file_helper.list_files_in_folder(
+            folder=tests_folder,
+            name_pattern="iter*.yaml",
+            search_root=False,
+            search_subfolders=True,
+            search_recursive=False,
         )
+        tests = [DroneTest.from_yaml(f) for f in test_files]
         solutions = [cls(t) for t in tests]
+        if load_existing_logs:
+            for i in range(len(tests)):
+                folder = path.dirname(test_files[i])
+                log_files = file_helper.list_files_in_folder(
+                    folder=folder,
+                    name_pattern="*.bag",
+                    search_root=False,
+                    search_subfolders=True,
+                    search_recursive=True,
+                )
+                results = [DroneTestResult(log) for log in log_files]
+                solutions[i].aggregate_simulations(results)
         return solutions
 
 

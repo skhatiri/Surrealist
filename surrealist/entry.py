@@ -110,6 +110,40 @@ def arg_parse():
     )
     evalute_parser.set_defaults(func=run_evaluate)
 
+    # plotting parser
+    report_parser = subparsers.add_parser(
+        name="report", description="generate report and plots for the existing test suite execution"
+    )
+    report_parser.add_argument(
+        "objective",
+        help="search objective",
+        choices=[
+            "obstacle",
+            "obstacle2",
+            "obstacle3",
+            "anymal",
+            "anymal_wp",
+            # "projector",
+            # "segment",
+        ],
+    )
+    report_parser.add_argument(
+        "--tests",
+        required=True,
+        help="test suite execution address (root folder)",
+    )
+    report_parser.add_argument(
+        "--id",
+        default=None,
+        help="experiment id",
+    )
+    report_parser.add_argument(
+        "--path",
+        default=None,
+        help="cloud output path to copy logs",
+    )
+    report_parser.set_defaults(func=run_report)
+
     args = main_parser.parse_args()
     return args
 
@@ -142,6 +176,15 @@ def run_evaluate(args):
     )
     factory.evaluate(args.tests)
 
+def run_report(args):
+    factory = SearchFactory(
+        seed_test=None,
+        search_method=args.objective,
+        simulations_count=0,
+        path=args.path,
+        id=args.id,
+    )
+    factory.report(args.tests)
 
 def config_loggers():
     os.makedirs("logs/", exist_ok=True)

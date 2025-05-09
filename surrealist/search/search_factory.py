@@ -73,3 +73,15 @@ class SearchFactory(object):
             solutions[0], self.simulations_count, self.path, self.id
         )
         searcher.evaluate(solutions)
+
+    def report(self, test_suite_path: str):
+        logger.info(f"loading test suite execution at {test_suite_path} ...")
+        solutions = self.seed_type.load_folder(test_suite_path,load_existing_logs=True)
+        if solutions is None or len(solutions) == 0:
+            logger.error("no tests found to generate report")
+            return
+        logger.info(f"reporting and plotting {len(solutions)} tests ...")
+        searcher = self.search_type(
+            solutions[0], 0, self.path, self.id
+        )
+        searcher.evaluate(solutions)
