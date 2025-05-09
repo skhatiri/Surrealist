@@ -173,12 +173,19 @@ class Solution(object):
                 folder = path.dirname(test_files[i])
                 log_files = file_helper.list_files_in_folder(
                     folder=folder,
+                    name_pattern="*.ulg",
+                    search_root=False,
+                    search_subfolders=True,
+                    search_recursive=True,
+                ) + file_helper.list_files_in_folder(
+                    folder=folder,
                     name_pattern="*.bag",
                     search_root=False,
                     search_subfolders=True,
                     search_recursive=True,
                 )
                 results = [DroneTestResult(log) for log in log_files]
+                solutions[i].is_valid = True
                 solutions[i].aggregate_simulations(results)
         return solutions
 
