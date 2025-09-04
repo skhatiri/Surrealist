@@ -13,6 +13,7 @@ from aerialist.px4.trajectory import Trajectory
 from aerialist.px4.plot import Plot
 from aerialist.entry import execute_test
 from aerialist.px4 import file_helper
+
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
 if AGENT == AgentConfig.K8S:
     from aerialist.px4.k8s_agent import K8sAgent
@@ -94,6 +95,7 @@ class Solution(object):
             return 0
 
     def check_validity(self):
+        # TODO: implement validity chekcs for subclasses
         return True
 
     def aggregate_simulations(
@@ -157,7 +159,9 @@ class Solution(object):
         )
 
     @classmethod
-    def load_folder(cls, search_folder: str = None, load_existing_logs=False) -> List[Solution]:
+    def load_folder(
+        cls, search_folder: str = None, load_existing_logs=False
+    ) -> List[Solution]:
         tests_folder = file_helper.get_local_folder(search_folder)
         test_files = file_helper.list_files_in_folder(
             folder=tests_folder,
@@ -184,7 +188,9 @@ class Solution(object):
                     search_subfolders=True,
                     search_recursive=True,
                 )
-                results = [DroneTestResult(log) for log in log_files]
+                status = DroneTestResult.Status.UNKNOWN
+                # extension_hint: infer the status from logs if possible
+                results = [DroneTestResult(log, status=status) for log in log_files]
                 solutions[i].is_valid = True
                 solutions[i].aggregate_simulations(results)
         return solutions

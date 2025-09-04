@@ -1,9 +1,12 @@
 from __future__ import annotations
 import copy
+import logging
 from aerialist.px4.drone_test import DroneTest
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 from .solution import Solution, MutationParams
+
+logger = logging.getLogger(__name__)
 
 
 class ObstacleSolution(Solution):
@@ -29,12 +32,19 @@ class ObstacleSolution(Solution):
         return mutant
 
     def check_validity(self):
+        # positive size values for all obstacles
         for obst in self.test.simulation.obstacles:
             if obst.shape == obst.BOX:
                 if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
+                    logger.warning(
+                        f"invalid solution: obstacle has non-positive size values ({obst.to_dict()})"
+                    )
                     return False
             if obst.shape == obst.CYLINDER:
                 if obst.size.r <= 0 or obst.size.h <= 0:
+                    logger.warning(
+                        f"invalid solution: obstacle has non-positive size values ({obst.to_dict()})"
+                    )
                     return False
         return True
 

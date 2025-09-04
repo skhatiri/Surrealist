@@ -2,6 +2,7 @@ import logging
 from decouple import config
 from aerialist.px4.drone_test import DroneTest
 
+# extension_hint: import usecase specific solution and search here
 from .obstacle3_search import Obstacle3Search
 from .obstacle3_solution import Obstacle3Solution
 from .obstacle2_search import Obstacle2Search
@@ -36,6 +37,7 @@ class SearchFactory(object):
         elif search_method == "obstacle3":
             self.seed_type = Obstacle3Solution
             self.search_type = Obstacle3Search
+        # extension_hint: add usecase specific search method here
 
         if seed_test is not None:
             self.seed = self.seed_type(seed_test)
@@ -76,12 +78,10 @@ class SearchFactory(object):
 
     def report(self, test_suite_path: str):
         logger.info(f"loading test suite execution at {test_suite_path} ...")
-        solutions = self.seed_type.load_folder(test_suite_path,load_existing_logs=True)
+        solutions = self.seed_type.load_folder(test_suite_path, load_existing_logs=True)
         if solutions is None or len(solutions) == 0:
             logger.error("no tests found to generate report")
             return
         logger.info(f"reporting and plotting {len(solutions)} tests ...")
-        searcher = self.search_type(
-            solutions[0], 0, self.path, self.id
-        )
+        searcher = self.search_type(solutions[0], 0, self.path, self.id)
         searcher.evaluate(solutions)

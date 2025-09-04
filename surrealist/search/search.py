@@ -1,7 +1,7 @@
 from typing import Callable, List, Union
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from os import makedirs
+import os
 from decouple import config
 from csv_logger import CsvLogger
 import logging
@@ -13,6 +13,7 @@ from .solution import Solution, MutationParams
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
 if AGENT == AgentConfig.DOCKER:
     from aerialist.px4.docker_agent import DockerAgent
+# extension_hint: import usecase specific agent here
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +38,13 @@ class Search(object):
         else:
             folder_name = id + "-" + file_helper.time_filename()
 
-        self.dir = f"{self.LOCAL_DIR}{folder_name}/"
-        makedirs(self.dir)
+        self.dir = os.path.join(self.LOCAL_DIR, folder_name) + os.sep
+        os.makedirs(self.dir)
         Plot.DIR = self.dir
         seed.DIR = self.dir
         if AGENT == AgentConfig.DOCKER:
             DockerAgent.COPY_DIR = self.dir
+        # extension_hint: set usecase specific agent setting here
 
         if path is not None:
             if not path.endswith("/"):
@@ -93,6 +95,7 @@ class Search(object):
         if self.webdav_dir is not None:
             file_helper.upload("logs/lib.txt", self.webdav_dir)
             file_helper.upload("logs/root.txt", self.webdav_dir)
+        self.summary()
 
     def search_mutation(self, budget: int = 5):
         raise NotImplementedError()
@@ -248,6 +251,8 @@ class Search(object):
             file_helper.upload("logs/lib.txt", self.webdav_dir)
             file_helper.upload("logs/root.txt", self.webdav_dir)
 
+        self.summary()
+
     def plot(self):
         index = range(len(self.best_log))
 
@@ -267,6 +272,11 @@ class Search(object):
         plt.close(fig)
         if self.webdav_dir is not None:
             file_helper.upload(self.dir + "progress.png", self.webdav_dir)
+
+    def summary(self):
+        # TODO: implement a summary report for subclasses
+        # aggregated metrics of the the executed tests grouped by their status (pass, fail, etc.)
+        pass
 
     def log_step(
         self,

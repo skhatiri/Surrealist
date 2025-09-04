@@ -6,8 +6,10 @@ import sys
 from decouple import config
 
 config("MAKEING_SURE_TO_INIT_CONFIG_BEFORE_LOADING_AERIALIST", default=True)
+# extension_hint: import usecase specific trajectory class
 from aerialist.px4.trajectory import Trajectory
 from aerialist.px4.drone_test import DroneTest
+
 
 try:
     from .search.search_factory import SearchFactory
@@ -35,6 +37,7 @@ def arg_parse():
             "obstacle",
             "obstacle2",
             "obstacle3",
+            # extension_hint: add usecase specific objectives here
             # "projector",
             # "segment",
         ],
@@ -82,6 +85,7 @@ def arg_parse():
             "obstacle",
             "obstacle2",
             "obstacle3",
+            # extension_hint: add usecase specific objectives here
             # "projector",
             # "segment",
         ],
@@ -112,7 +116,8 @@ def arg_parse():
 
     # plotting parser
     report_parser = subparsers.add_parser(
-        name="report", description="generate report and plots for the existing test suite execution"
+        name="report",
+        description="generate report and plots for the existing test suite execution",
     )
     report_parser.add_argument(
         "objective",
@@ -121,10 +126,10 @@ def arg_parse():
             "obstacle",
             "obstacle2",
             "obstacle3",
-            "anymal",
-            "anymal_wp",
+            # extension_hint: add usecase specific objectives here
             # "projector",
             # "segment",
+            # ex
         ],
     )
     report_parser.add_argument(
@@ -176,6 +181,7 @@ def run_evaluate(args):
     )
     factory.evaluate(args.tests)
 
+
 def run_report(args):
     factory = SearchFactory(
         seed_test=None,
@@ -185,6 +191,7 @@ def run_report(args):
         id=args.id,
     )
     factory.report(args.tests)
+
 
 def config_loggers():
     os.makedirs("logs/", exist_ok=True)
@@ -219,6 +226,9 @@ def config_loggers():
 
 def main():
     try:
+        # extension_hint: should refer to usecase specific trajectory class
+        # todo: move this to a better place
+        # AssertionConfig.TRAJECTORY = Trajectory
         config_loggers()
         args = arg_parse()
         logger.info(f"preparing the experiment environment...{args}")
