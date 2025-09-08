@@ -57,11 +57,6 @@ class Search(object):
             self.webdav_dir = None
         logger.info(f"webdav dir:{self.webdav_dir}")
         self.mutation_type = seed.mutation_type
-        self.csv_logger = CsvLogger(
-            filename=f"{self.dir}log.csv",
-            level=logging.DEBUG,
-            header=f"time, iteration, fitness, taken?, comparison,{self.mutation_type.log_header()}[fitnesses], desc.",
-        )
         self.seed = seed
         self.best_log = []
         self.all_log = []
@@ -69,6 +64,15 @@ class Search(object):
         self.runs = eval_runs
 
         self.best = seed
+
+        self.init_csv_logs()
+
+    def init_csv_logs(self):
+        self.csv_logger = CsvLogger(
+            filename=f"{self.dir}log.csv",
+            level=logging.DEBUG,
+            header=f"time, iteration, fitness, taken?, comparison,{self.mutation_type.log_header()}[fitnesses], desc.",
+        )
 
     def __del__(self):
         if self.webdav_dir is not None:
@@ -287,10 +291,7 @@ class Search(object):
         desc: str = None,
     ):
         sol.plot(len(self.all_log))
-        log = f'{len(self.all_log)},{round(sol.fitness,3)},{taken},{comparison},{mut.log_str(sol)},"{str([round(fit,1) for fit in sol.fitnesses])}"'
-        if desc != None:
-            log += "," + desc
-        self.csv_logger.info(log)
+        self.update_csv_logs(sol, mut, taken, comparison, desc)
         if self.webdav_dir is not None:
             file_helper.upload(self.csv_logger.filename, self.webdav_dir)
 
@@ -305,3 +306,16 @@ class Search(object):
                 self.best_log.append(self.best.fitness)
 
         self.plot()
+
+    def update_csv_logs(
+        self,
+        sol: Solution,
+        mut: MutationParams,
+        taken: bool,
+        comparison: int,
+        desc: str = None,
+    ):
+        log = f'{len(self.all_log)},{round(sol.fitness,3)},{taken},{comparison},{mut.log_str(sol)},"{str([round(fit,1) for fit in sol.fitnesses])}"'
+        if desc != None:
+            log += "," + desc
+        self.csv_logger.info(log)

@@ -29,88 +29,83 @@ class Obstacle2Search(ObstacleSearch):
             path,
             id,
         )
-        # self.csv_report = CsvLogger(
-        #     filename=f"{self.dir}report.csv",
-        #     level=logging.DEBUG,
-        #     header=f"time,iteration,improved,{self.mutation_type.report_header()}",
-        # )
 
-    def summary(self):
-        report_path = f"{self.dir}report.csv"
-        if not os.path.exists(report_path):
-            logger.warning(f"Report file not found: {report_path}")
-            return
-        df = pd.read_csv(report_path)
-        df.columns = df.columns.str.strip()
+    # def init_csv_logs(self):
+    #     super().init_csv_logs()
+    #     self.csv_report = CsvLogger(
+    #         filename=f"{self.dir}report.csv",
+    #         level=logging.DEBUG,
+    #         header=f"time,iteration,improved,{self.mutation_type.report_header()}",
+    #     )
 
-        # ignoring the last row (normally contains repeated entry of the best test)
-        if len(df) > 1:
-            df = df.iloc[:-1]
+    # def summary(self):
+    #     report_path = f"{self.dir}report.csv"
+    #     if not os.path.exists(report_path):
+    #         logger.warning(f"Report file not found: {report_path}")
+    #         return
+    #     df = pd.read_csv(report_path)
+    #     df.columns = df.columns.str.strip()
 
-        group_stats = (
-            df.groupby("status")
-            .agg(
-                count=("distance", "count"),
-                min_distance=("distance", "min"),
-                max_distance=("distance", "max"),
-                avg_distance=("distance", "mean"),
-                min_gap=("gap", "min"),
-                max_gap=("gap", "max"),
-                avg_gap=("gap", "mean"),
-                min_deviation=("deviation", "min"),
-                max_deviation=("deviation", "max"),
-                avg_deviation=("deviation", "mean"),
-                min_duration=("duration", "min"),
-                max_duration=("duration", "max"),
-                avg_duration=("duration", "mean"),
-                min_traveled=("traveled", "min"),
-                max_traveled=("traveled", "max"),
-                avg_traveled=("traveled", "mean"),
-            )
-            .reset_index()
-        )
+    #     # ignoring the last row (normally contains repeated entry of the best test)
+    #     if len(df) > 1:
+    #         df = df.iloc[:-1]
 
-        overall_stats = pd.DataFrame(
-            {
-                "status": ["ALL"],
-                "count": [df["distance"].count()],
-                "min_distance": [df["distance"].min()],
-                "max_distance": [df["distance"].max()],
-                "avg_distance": [df["distance"].mean()],
-                "min_gap": [df["gap"].min()],
-                "max_gap": [df["gap"].max()],
-                "avg_gap": [df["gap"].mean()],
-                "min_deviation": [df["deviation"].min()],
-                "max_deviation": [df["deviation"].max()],
-                "avg_deviation": [df["deviation"].mean()],
-                "min_duration": [df["duration"].min()],
-                "max_duration": [df["duration"].max()],
-                "avg_duration": [df["duration"].mean()],
-                "min_traveled": [df["traveled"].min()],
-                "max_traveled": [df["traveled"].max()],
-                "avg_traveled": [df["traveled"].mean()],
-            }
-        )
+    #     group_stats = (
+    #         df.groupby("status")
+    #         .agg(
+    #             count=("distance", "count"),
+    #             min_distance=("distance", "min"),
+    #             max_distance=("distance", "max"),
+    #             avg_distance=("distance", "mean"),
+    #             min_gap=("gap", "min"),
+    #             max_gap=("gap", "max"),
+    #             avg_gap=("gap", "mean"),
+    #             min_deviation=("deviation", "min"),
+    #             max_deviation=("deviation", "max"),
+    #             avg_deviation=("deviation", "mean"),
+    #             min_duration=("duration", "min"),
+    #             max_duration=("duration", "max"),
+    #             avg_duration=("duration", "mean"),
+    #             min_traveled=("traveled", "min"),
+    #             max_traveled=("traveled", "max"),
+    #             avg_traveled=("traveled", "mean"),
+    #         )
+    #         .reset_index()
+    #     )
 
-        summary = pd.concat([group_stats, overall_stats], ignore_index=True)
+    #     overall_stats = pd.DataFrame(
+    #         {
+    #             "status": ["ALL"],
+    #             "count": [df["distance"].count()],
+    #             "min_distance": [df["distance"].min()],
+    #             "max_distance": [df["distance"].max()],
+    #             "avg_distance": [df["distance"].mean()],
+    #             "min_gap": [df["gap"].min()],
+    #             "max_gap": [df["gap"].max()],
+    #             "avg_gap": [df["gap"].mean()],
+    #             "min_deviation": [df["deviation"].min()],
+    #             "max_deviation": [df["deviation"].max()],
+    #             "avg_deviation": [df["deviation"].mean()],
+    #             "min_duration": [df["duration"].min()],
+    #             "max_duration": [df["duration"].max()],
+    #             "avg_duration": [df["duration"].mean()],
+    #             "min_traveled": [df["traveled"].min()],
+    #             "max_traveled": [df["traveled"].max()],
+    #             "avg_traveled": [df["traveled"].mean()],
+    #         }
+    #     )
 
-        summary.to_csv(
-            f"{self.dir}summary.csv",
-            index=False,
-            float_format="%.2f",
-        )
+    #     summary = pd.concat([group_stats, overall_stats], ignore_index=True)
 
-    # def log_step(
-    #     self,
-    #     sol: Obstacle2Solution,
-    #     mut: Obstacle2MutationParams,
-    #     taken: bool,
-    #     comparison: int,
-    #     desc: str = None,
-    # ):
-    #     # report = f"{len(self.all_log)},{taken},{mut.report_str(sol)}"
-    #     # self.csv_report.info(report)
-    #     # if self.webdav_dir is not None:
-    #     #     file_helper.upload(self.csv_report.filename, self.webdav_dir)
+    #     summary.to_csv(
+    #         f"{self.dir}summary.csv",
+    #         index=False,
+    #         float_format="%.2f",
+    #     )
 
-    #     super().log_step(sol, mut, taken, comparison, desc)
+    # def update_csv_logs(self, sol, mut, taken, comparison, desc = None):
+    #     super().update_csv_logs(sol, mut, taken, comparison, desc)
+    #     report = f"{len(self.all_log)},{taken},{mut.report_str(sol)}"
+    #     self.csv_report.info(report)
+    #     if self.webdav_dir is not None:
+    #         file_helper.upload(self.csv_report.filename, self.webdav_dir)

@@ -129,7 +129,6 @@ def arg_parse():
             # extension_hint: add usecase specific objectives here
             # "projector",
             # "segment",
-            # ex
         ],
     )
     report_parser.add_argument(
