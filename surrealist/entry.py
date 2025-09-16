@@ -8,7 +8,7 @@ from decouple import config
 config("MAKEING_SURE_TO_INIT_CONFIG_BEFORE_LOADING_AERIALIST", default=True)
 # extension_hint: import usecase specific trajectory class
 from aerialist.px4.trajectory import Trajectory
-from aerialist.px4.drone_test import DroneTest
+from aerialist.px4.aerialist_test import AerialistTest
 
 
 try:
@@ -156,7 +156,7 @@ def run_search(args):
     if args.objective == "projector" or args.objective == "segment":
         Trajectory.IGNORE_AUTO_MODES = True
 
-    seed_test = DroneTest.from_yaml(args.seed)
+    seed_test = AerialistTest.from_yaml(args.seed)
 
     factory = SearchFactory(
         seed_test,

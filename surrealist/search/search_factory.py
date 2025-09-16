@@ -1,6 +1,6 @@
 import logging
 from decouple import config
-from aerialist.px4.drone_test import DroneTest
+from aerialist.px4.aerialist_test import AerialistTest
 
 # extension_hint: import usecase specific solution and search here
 from .obstacle3_search import Obstacle3Search
@@ -20,7 +20,7 @@ class SearchFactory(object):
 
     def __init__(
         self,
-        seed_test: DroneTest,
+        seed_test: AerialistTest,
         search_method: str,
         budget: int = 50,
         simulations_count: int = 1,

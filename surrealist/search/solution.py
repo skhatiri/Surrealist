@@ -4,9 +4,9 @@ from typing import List
 from decouple import config
 from numpy import percentile
 import logging
-from aerialist.px4.drone_test import (
-    DroneTest,
-    DroneTestResult,
+from aerialist.px4.aerialist_test  import (
+    AerialistTest,
+    AerialistTestResult,
     AgentConfig,
 )
 from aerialist.px4.trajectory import Trajectory
@@ -30,7 +30,7 @@ class Solution(object):
     CHANGE_THRESHOLD = config("SEARCH_CHANGE_THRESHOLD", cast=float, default=0.01)
     INVALID_SOL_FITNESS = -9999
 
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__()
         self.test = test
         self.result = None
@@ -64,8 +64,8 @@ class Solution(object):
         )
 
         test_results = execute_test(
-            DroneTest(
-                drone=self.test.drone,
+            AerialistTest(
+                robot=self.test.robot,
                 simulation=self.test.simulation,
                 mission=self.test.mission,
                 assertion=self.test.assertion,
@@ -77,8 +77,8 @@ class Solution(object):
             # retry once
             logger.error(f"No logs were extracted, retrying once...")
             test_results = execute_test(
-                DroneTest(
-                    drone=self.test.drone,
+                AerialistTest(
+                    robot=self.test.robot,
                     simulation=self.test.simulation,
                     mission=self.test.mission,
                     assertion=self.test.assertion,
@@ -100,7 +100,7 @@ class Solution(object):
 
     def aggregate_simulations(
         self,
-        results: List[DroneTestResult],
+        results: List[AerialistTestResult],
     ):
         self.trajectories = [r.record for r in results]
         self.fitnesses = [self.get_fitness(r.record) for r in results]
@@ -110,7 +110,7 @@ class Solution(object):
         )
         self.result = Trajectory.average([r.record for r in results])
         self.fitness = self.get_fitness(self.result)
-        self.aggregate = DroneTestResult(
+        self.aggregate = AerialistTestResult(
             log_file=results[median_ind].log_file, record=self.result
         )
         return self.aggregate
@@ -170,7 +170,7 @@ class Solution(object):
             search_subfolders=True,
             search_recursive=False,
         )
-        tests = [DroneTest.from_yaml(f) for f in test_files]
+        tests = [AerialistTest.from_yaml(f) for f in test_files]
         solutions = [cls(t) for t in tests]
         if load_existing_logs:
             for i in range(len(tests)):
@@ -188,9 +188,9 @@ class Solution(object):
                     search_subfolders=True,
                     search_recursive=True,
                 )
-                status = DroneTestResult.Status.UNKNOWN
+                status = AerialistTestResult.Status.UNKNOWN
                 # extension_hint: infer the status from logs if possible
-                results = [DroneTestResult(log, status=status) for log in log_files]
+                results = [AerialistTestResult(log, status=status) for log in log_files]
                 solutions[i].is_valid = True
                 solutions[i].aggregate_simulations(results)
         return solutions

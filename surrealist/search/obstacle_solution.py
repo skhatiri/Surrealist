@@ -1,7 +1,7 @@
 from __future__ import annotations
 import copy
 import logging
-from aerialist.px4.drone_test import DroneTest
+from aerialist.px4.aerialist_test import AerialistTest
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 from .solution import Solution, MutationParams
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ObstacleSolution(Solution):
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__(test)
         self.mutation_type = ObstacleMutationParams
         self.obstacle = test.simulation.obstacles[0]

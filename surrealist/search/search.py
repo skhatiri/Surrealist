@@ -7,7 +7,7 @@ from csv_logger import CsvLogger
 import logging
 from aerialist.px4 import file_helper
 from aerialist.px4.plot import Plot
-from aerialist.px4.drone_test import AgentConfig
+from aerialist.px4.aerialist_test  import AgentConfig
 from .solution import Solution, MutationParams
 
 AGENT = config("AGENT", default=AgentConfig.DOCKER)

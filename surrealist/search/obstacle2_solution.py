@@ -6,7 +6,7 @@ import copy
 from shapely.geometry import Point
 from decouple import config
 
-from aerialist.px4.drone_test import DroneTest, DroneTestResult
+from aerialist.px4.aerialist_test import AerialistTest, AerialistTestResult
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 
@@ -32,7 +32,7 @@ class Obstacle2Solution(ObstacleSolution):
         "SEARCH_OBSTACLES_CAN_INTERSECT", default=False, cast=bool
     )  # whether obstacles can intersect (disabled by default)
 
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__(test)
         self.mutation_type = Obstacle2MutationParams
         self.goal = None
@@ -41,7 +41,7 @@ class Obstacle2Solution(ObstacleSolution):
         sum_dist = trajectory.distance_to_obstacles(self.test.simulation.obstacles)
         return -(sum_dist + 2 * self.get_min_distance(trajectory))
 
-    def aggregate_simulations(self, results: List[DroneTestResult]):
+    def aggregate_simulations(self, results: List[AerialistTestResult]):
         self.trajectories = [r.record for r in results]
         self.fitnesses = [self.get_fitness(r.record) for r in results]
         max_ind = self.fitnesses.index(max(self.fitnesses))

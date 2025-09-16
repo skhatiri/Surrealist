@@ -4,7 +4,7 @@ import logging
 from shapely.geometry import Point, LineString
 from shapely import length
 
-from aerialist.px4.drone_test import DroneTest
+from aerialist.px4.aerialist_test import AerialistTest
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class WaypointSolution(Obstacle2Solution):
 
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__(test)
         self.mutation_type = WaypointMutationParams
         self.waypoint = test.mission.waypoints[0]
