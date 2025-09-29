@@ -1,3 +1,5 @@
+surrealist.egg-info/
+build/*
 tmp/
 logs/**
 .env

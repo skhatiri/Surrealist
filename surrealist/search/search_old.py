@@ -6,7 +6,7 @@ from decouple import config
 from csv_logger import CsvLogger
 import logging
 from aerialist.px4 import file_helper
-from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.plot import Plot
 from .solution import Solution, MutationParams
 
 
@@ -36,13 +36,13 @@ class Search(object):
 
         self.dir = f"{self.LOCAL_DIR}{folder_name}/"
         makedirs(self.dir)
-        Trajectory.DIR = self.dir
+        Plot.DIR = self.dir
         seed.DIR = self.dir
 
         if path is not None:
             self.webdav_dir = f"{path}{folder_name}/"
             file_helper.create_dir(self.webdav_dir)
-            Trajectory.WEBDAV_DIR = self.webdav_dir
+            Plot.WEBDAV_DIR = self.webdav_dir
             Solution.WEBDAV_DIR = self.webdav_dir
 
         self.mutation_type = seed.mutation_type

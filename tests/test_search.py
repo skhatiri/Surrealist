@@ -2,10 +2,10 @@ from asyncio.log import logger
 import unittest
 import os
 import logging
-from aerialist.px4.drone_test import (
+from aerialist.px4.aerialist_test  import (
     AssertionConfig,
-    DroneConfig,
-    DroneTest,
+    RobotConfig,
+    AerialistTest,
     SimulationConfig,
     TestConfig,
 )
@@ -30,8 +30,8 @@ class TestSearch(unittest.TestCase):
             headless=True,
             simulator=SimulationConfig.GAZEBO,
         )
-        drone_config = DroneConfig(
-            port=DroneConfig.SITL_PORT,
+        robot_config = RobotConfig(
+            port=RobotConfig.SITL_PORT,
             params={},
             mission_file=None,
         )
@@ -42,7 +42,7 @@ class TestSearch(unittest.TestCase):
             log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
         )
-        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
+        seed = AerialistTest(robot_config, simulation_config, test_config, assertion_config)
         seed_sol = Solution(seed)
 
         Search.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
@@ -60,8 +60,8 @@ class TestSearch(unittest.TestCase):
             simulator=SimulationConfig.ROS,
             obstacles=[3, 3, 10, -7, 2, 0, 30],
         )
-        drone_config = DroneConfig(
-            port=DroneConfig.ROS_PORT,
+        robot_config = RobotConfig(
+            port=RobotConfig.ROS_PORT,
             params_file="experiments/rq2-0-params.csv",
             mission_file="experiments/rq2-0.plan",
         )
@@ -73,8 +73,8 @@ class TestSearch(unittest.TestCase):
             variable=AssertionConfig.TRAJECTORY,
         )
 
-        seed = DroneTest(
-            drone_config,
+        seed = AerialistTest(
+            robot_config,
             simulation_config,
             test_config,
             assertion,

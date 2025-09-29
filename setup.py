@@ -17,5 +17,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=["git+git+https://github.com/skhatiri/Aerialist.git@packaging"],
-    entry_points={"console_scripts": ["surrealist=surrealist"]},
+    entry_points={"console_scripts": ["surrealist=surrealist.entry:main"]},
 )

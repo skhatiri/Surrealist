@@ -1,13 +1,16 @@
 from __future__ import annotations
 import copy
-from aerialist.px4.drone_test import DroneTest
+import logging
+from aerialist.px4.aerialist_test import AerialistTest
 from aerialist.px4.obstacle import Obstacle
 from aerialist.px4.trajectory import Trajectory
 from .solution import Solution, MutationParams
 
+logger = logging.getLogger(__name__)
+
 
 class ObstacleSolution(Solution):
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__(test)
         self.mutation_type = ObstacleMutationParams
         self.obstacle = test.simulation.obstacles[0]
@@ -20,23 +23,30 @@ class ObstacleSolution(Solution):
         mutant_obstacle = self.modify_obstacle(
             self.obstacle, param.property, param.delta
         )
-        if (
-            mutant_obstacle.size.l <= 0
-            or mutant_obstacle.size.w <= 0
-            or mutant_obstacle.size.h <= 0
-        ):
-            # mutation is invalid (size has negative elements)
-            mutant = copy.deepcopy(self)
-            mutant.obstacle = mutant_obstacle
-            mutant.fitness = self.INVALID_SOL_FITNESS
-        else:
-            mutant_test = copy.deepcopy(self.test)
-            mutant_test.simulation.obstacles[0] = Obstacle(
-                mutant_obstacle.size, mutant_obstacle.position
-            )
-            mutant = type(self)(mutant_test)
+        mutant_test = copy.deepcopy(self.test)
+        mutant_test.simulation.obstacles[0] = Obstacle(
+            mutant_obstacle.size, mutant_obstacle.position, mutant_obstacle.shape
+        )
+        mutant = type(self)(mutant_test)
 
         return mutant
+
+    def check_validity(self):
+        # positive size values for all obstacles
+        for obst in self.test.simulation.obstacles:
+            if obst.shape == obst.BOX:
+                if obst.size.l <= 0 or obst.size.w <= 0 or obst.size.h <= 0:
+                    logger.warning(
+                        f"invalid solution: obstacle has non-positive size values ({obst.to_dict()})"
+                    )
+                    return False
+            if obst.shape == obst.CYLINDER:
+                if obst.size.r <= 0 or obst.size.h <= 0:
+                    logger.warning(
+                        f"invalid solution: obstacle has non-positive size values ({obst.to_dict()})"
+                    )
+                    return False
+        return True
 
     def modify_obstacle(
         self, obstacle: Obstacle, property: str, delta: float
@@ -48,6 +58,7 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l + delta,
                 w=mutant_obstacle.size.w,
                 h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.l += delta
         if property == "sy":
@@ -55,6 +66,7 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l,
                 w=mutant_obstacle.size.w + delta,
                 h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.w += delta
         if property == "sz":
@@ -62,8 +74,16 @@ class ObstacleSolution(Solution):
                 l=mutant_obstacle.size.l,
                 w=mutant_obstacle.size.w,
                 h=mutant_obstacle.size.h + delta,
+                r=mutant_obstacle.size.r,
             )
             # mutant_obstacle.size.h += delta
+        if property == "sr":
+            mutant_obstacle.size = Obstacle.Size(
+                l=mutant_obstacle.size.l,
+                w=mutant_obstacle.size.w,
+                h=mutant_obstacle.size.h,
+                r=mutant_obstacle.size.r + (delta / 2),
+            )
 
         ### change position
         if property == "x":
@@ -126,8 +146,8 @@ class ObstacleMutationParams(MutationParams):
         self.delta = delta
 
     def log_str(self, sol: ObstacleSolution):
-        return f"{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.h},{sol.obstacle.position.r}"
+        return f"{self.property},{self.delta},{sol.obstacle.position.x},{sol.obstacle.position.y},{sol.obstacle.size.l},{sol.obstacle.size.w},{sol.obstacle.size.r},{sol.obstacle.size.h},{sol.obstacle.position.r}"
 
     @classmethod
     def log_header(cls):
-        return "property, delta, x, y, l, w, h, r,"
+        return "property, delta, x, y, l, w, rd, h, r,"

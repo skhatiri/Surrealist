@@ -1,15 +1,18 @@
 from __future__ import annotations
+from os import path
 from typing import List
 from decouple import config
 from numpy import percentile
 import logging
-from aerialist.px4.drone_test import (
-    DroneTest,
-    DroneTestResult,
+from aerialist.px4.aerialist_test  import (
+    AerialistTest,
+    AerialistTestResult,
     AgentConfig,
 )
 from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.plot import Plot
 from aerialist.entry import execute_test
+from aerialist.px4 import file_helper
 
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
 if AGENT == AgentConfig.K8S:
@@ -27,7 +30,7 @@ class Solution(object):
     CHANGE_THRESHOLD = config("SEARCH_CHANGE_THRESHOLD", cast=float, default=0.01)
     INVALID_SOL_FITNESS = -9999
 
-    def __init__(self, test: DroneTest) -> None:
+    def __init__(self, test: AerialistTest) -> None:
         super().__init__()
         self.test = test
         self.result = None
@@ -37,13 +40,18 @@ class Solution(object):
         self,
         runs: int,
         iteration: int,
-    ) -> None:
+    ) -> int:
         if hasattr(self, "fitness"):  # solution has been simulated before
-            return
+            return 0
+
+        self.is_valid = self.check_validity()
+        if not self.is_valid:
+            self.fitness = self.INVALID_SOL_FITNESS
+            return 0
 
         if self.result is not None:  # solution has been simulated before
             self.fitness = self.get_fitness(self.result)
-            return
+            return 0
 
         if AGENT == AgentConfig.K8S:
             K8sAgent.WEBDAV_LOCAL_DIR = self.DIR
@@ -56,20 +64,43 @@ class Solution(object):
         )
 
         test_results = execute_test(
-            DroneTest(
-                drone=self.test.drone,
+            AerialistTest(
+                robot=self.test.robot,
                 simulation=self.test.simulation,
-                test=self.test.test,
+                mission=self.test.mission,
                 assertion=self.test.assertion,
                 agent=agent,
             )
         )
+        if len(test_results) == 0:
+            # no logs were extracted, probably an issue with test execution
+            # retry once
+            logger.error(f"No logs were extracted, retrying once...")
+            test_results = execute_test(
+                AerialistTest(
+                    robot=self.test.robot,
+                    simulation=self.test.simulation,
+                    mission=self.test.mission,
+                    assertion=self.test.assertion,
+                    agent=agent,
+                )
+            )
         logger.info(f"{len(test_results)} evalations completed")
-        self.aggregate_simulations(test_results)
+        if len(test_results) > 0:
+            self.aggregate_simulations(test_results)
+            return len(test_results)
+        else:
+            self.is_valid = False
+            self.fitness = self.INVALID_SOL_FITNESS
+            return 0
+
+    def check_validity(self):
+        # TODO: implement validity chekcs for subclasses
+        return True
 
     def aggregate_simulations(
         self,
-        results: List[DroneTestResult],
+        results: List[AerialistTestResult],
     ):
         self.trajectories = [r.record for r in results]
         self.fitnesses = [self.get_fitness(r.record) for r in results]
@@ -79,7 +110,7 @@ class Solution(object):
         )
         self.result = Trajectory.average([r.record for r in results])
         self.fitness = self.get_fitness(self.result)
-        self.aggregate = DroneTestResult(
+        self.aggregate = AerialistTestResult(
             log_file=results[median_ind].log_file, record=self.result
         )
         return self.aggregate
@@ -105,11 +136,16 @@ class Solution(object):
     def mutate(self, params: MutationParams) -> Solution:
         raise NotImplementedError("This method must be overridden")
 
+    def generate_seeds(self, n: int):
+        # TODO: implement randomized seed generation for subclasses
+        return [self]
+
     def plot(self, iteration: int):
-        Trajectory.plot_multiple(
+        Plot.plot_trajectory(
             self.trajectories,
             self.goal if hasattr(self, "goal") else None,
-            distance=-self.fitness,
+            distance=True,  # let Aerialist compute distance to obstacles
+            # distance=-self.fitness,
             obstacles=(
                 self.test.simulation.obstacles
                 if self.test.simulation is not None
@@ -117,7 +153,47 @@ class Solution(object):
             ),
             file_prefix=f"iter{iteration:03d}-",
             ave_trajectory=self.result,
+            waypoints=(
+                None if self.test.mission is None else self.test.mission.waypoints
+            ),
         )
+
+    @classmethod
+    def load_folder(
+        cls, search_folder: str = None, load_existing_logs=False
+    ) -> List[Solution]:
+        tests_folder = file_helper.get_local_folder(search_folder)
+        test_files = file_helper.list_files_in_folder(
+            folder=tests_folder,
+            name_pattern="iter*.yaml",
+            search_root=False,
+            search_subfolders=True,
+            search_recursive=False,
+        )
+        tests = [AerialistTest.from_yaml(f) for f in test_files]
+        solutions = [cls(t) for t in tests]
+        if load_existing_logs:
+            for i in range(len(tests)):
+                folder = path.dirname(test_files[i])
+                log_files = file_helper.list_files_in_folder(
+                    folder=folder,
+                    name_pattern="*.ulg",
+                    search_root=False,
+                    search_subfolders=True,
+                    search_recursive=True,
+                ) + file_helper.list_files_in_folder(
+                    folder=folder,
+                    name_pattern="*.bag",
+                    search_root=False,
+                    search_subfolders=True,
+                    search_recursive=True,
+                )
+                status = AerialistTestResult.Status.UNKNOWN
+                # extension_hint: infer the status from logs if possible
+                results = [AerialistTestResult(log, status=status) for log in log_files]
+                solutions[i].is_valid = True
+                solutions[i].aggregate_simulations(results)
+        return solutions
 
 
 class MutationParams(object):

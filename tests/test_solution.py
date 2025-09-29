@@ -2,14 +2,14 @@ from asyncio.log import logger
 import unittest
 import os
 import logging
-from aerialist.px4.drone_test import (
+from aerialist.px4.aerialist_test  import (
     AssertionConfig,
-    DroneConfig,
-    DroneTest,
+    RobotConfig,
+    AerialistTest,
     SimulationConfig,
     TestConfig,
 )
-from aerialist.px4.trajectory import Trajectory
+from aerialist.px4.plot import Plot
 from surrealist.search.solution import Solution
 from surrealist.search.obstacle_solution import ObstacleSolution
 from surrealist.search.obstacle2_solution import Obstacle2Solution
@@ -30,8 +30,8 @@ class TestSolution(unittest.TestCase):
             headless=True,
             simulator=SimulationConfig.GAZEBO,
         )
-        drone_config = DroneConfig(
-            port=DroneConfig.SITL_PORT,
+        robot_config = RobotConfig(
+            port=RobotConfig.SITL_PORT,
             params={},
             mission_file=None,
         )
@@ -42,11 +42,9 @@ class TestSolution(unittest.TestCase):
             log_file="experiments/t0.ulg",
             variable=AssertionConfig.TRAJECTORY,
         )
-        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
+        seed = AerialistTest(robot_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        Trajectory.WEBDAV_DIR = (
-            "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        )
+        Plot.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         sol = Solution(seed)
         iter = 200
         sol.evaluate(
@@ -63,8 +61,8 @@ class TestSolution(unittest.TestCase):
             simulator=SimulationConfig.ROS,
             obstacles=[10, 10, 0, 15, 20, 20],
         )
-        drone_config = DroneConfig(
-            port=DroneConfig.ROS_PORT,
+        robot_config = RobotConfig(
+            port=RobotConfig.ROS_PORT,
             params_file="experiments/params_avoidance.csv",
             mission_file="experiments/auto1.plan",
         )
@@ -75,11 +73,9 @@ class TestSolution(unittest.TestCase):
             log_file="experiments/auto1.ulg",
             variable=AssertionConfig.TRAJECTORY,
         )
-        seed = DroneTest(drone_config, simulation_config, test_config, assertion_config)
+        seed = AerialistTest(robot_config, simulation_config, test_config, assertion_config)
         Solution.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        Trajectory.WEBDAV_DIR = (
-            "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
-        )
+        Plot.WEBDAV_DIR = "https://filer.cloudlab.zhaw.ch/remote.php/webdav/tests/"
         sol = ObstacleSolution(seed)
         iter = 271
         sol.evaluate(

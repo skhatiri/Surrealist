@@ -1,18 +1,19 @@
-from typing import Callable, Union
+from typing import Callable, List, Union
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from os import makedirs
+import os
 from decouple import config
 from csv_logger import CsvLogger
 import logging
 from aerialist.px4 import file_helper
-from aerialist.px4.trajectory import Trajectory
-from aerialist.px4.drone_test import AgentConfig
+from aerialist.px4.plot import Plot
+from aerialist.px4.aerialist_test  import AgentConfig
 from .solution import Solution, MutationParams
 
 AGENT = config("AGENT", default=AgentConfig.DOCKER)
 if AGENT == AgentConfig.DOCKER:
     from aerialist.px4.docker_agent import DockerAgent
+# extension_hint: import usecase specific agent here
 
 logger = logging.getLogger(__name__)
 
@@ -37,29 +38,25 @@ class Search(object):
         else:
             folder_name = id + "-" + file_helper.time_filename()
 
-        self.dir = f"{self.LOCAL_DIR}{folder_name}/"
-        makedirs(self.dir)
-        Trajectory.DIR = self.dir
+        self.dir = os.path.join(self.LOCAL_DIR, folder_name) + os.sep
+        os.makedirs(self.dir)
+        Plot.DIR = self.dir
         seed.DIR = self.dir
         if AGENT == AgentConfig.DOCKER:
             DockerAgent.COPY_DIR = self.dir
+        # extension_hint: set usecase specific agent setting here
 
         if path is not None:
             if not path.endswith("/"):
                 path += "/"
             self.webdav_dir = f"{path}{folder_name}/"
             file_helper.create_dir(self.webdav_dir)
-            Trajectory.WEBDAV_DIR = self.webdav_dir
+            Plot.WEBDAV_DIR = self.webdav_dir
             Solution.WEBDAV_DIR = self.webdav_dir
         else:
             self.webdav_dir = None
         logger.info(f"webdav dir:{self.webdav_dir}")
         self.mutation_type = seed.mutation_type
-        self.csv_logger = CsvLogger(
-            filename=f"{self.dir}log.csv",
-            level=logging.DEBUG,
-            header=f"time, iteration, fitness, taken?, comparison,{self.mutation_type.log_header()}[fitnesses], desc.",
-        )
         self.seed = seed
         self.best_log = []
         self.all_log = []
@@ -67,6 +64,15 @@ class Search(object):
         self.runs = eval_runs
 
         self.best = seed
+
+        self.init_csv_logs()
+
+    def init_csv_logs(self):
+        self.csv_logger = CsvLogger(
+            filename=f"{self.dir}log.csv",
+            level=logging.DEBUG,
+            header=f"time, iteration, fitness, taken?, comparison,{self.mutation_type.log_header()}[fitnesses], desc.",
+        )
 
     def __del__(self):
         if self.webdav_dir is not None:
@@ -93,6 +99,7 @@ class Search(object):
         if self.webdav_dir is not None:
             file_helper.upload("logs/lib.txt", self.webdav_dir)
             file_helper.upload("logs/root.txt", self.webdav_dir)
+        self.summary()
 
     def search_mutation(self, budget: int = 5):
         raise NotImplementedError()
@@ -126,34 +133,40 @@ class Search(object):
             # initializing the solutions to compare
             # either new evaluations or from the cache
             param_up = best_param + step
+            sol_up_eval = False
             if param_up in eval_map:
                 sol_up = eval_map[param_up]
-                sol_up_eval = False
             else:
                 mut_up = mutation_init(param_up)
                 sol_up = seed.mutate(mut_up)
-                sol_up.evaluate(self.runs, len(self.all_log))
+                evals = sol_up.evaluate(self.runs, len(self.all_log))
+                if evals > 0:
+                    sol_up_eval = True
+                    evaluations += 1
                 eval_map[param_up] = sol_up
-                sol_up_eval = True
-                evaluations += 1
 
             param_down = best_param - step
+            sol_down_eval = False
             if param_down in eval_map:
                 sol_down = eval_map[param_down]
-                sol_down_eval = False
             else:
                 mut_down = mutation_init(param_down)
                 sol_down = seed.mutate(mut_down)
-                sol_down.evaluate(
+                evals = sol_down.evaluate(
                     self.runs,
                     len(self.all_log) + sol_up_eval,
                 )
+                if evals > 0:
+                    sol_down_eval = True
+                    evaluations += 1
                 eval_map[param_down] = sol_down
-                sol_down_eval = True
-                evaluations += 1
 
             # comparing the solutions to take the best direction
-            if sol_up.compare_to(best_sol) >= 1 and sol_up.compare_to(sol_down) >= 1:
+            if (
+                sol_up.is_valid
+                and sol_up.compare_to(best_sol) >= 1
+                and ((not sol_down.is_valid) or sol_up.compare_to(sol_down) >= 1)
+            ):
                 comparison = 1
                 best_sol = sol_up
                 best_param = param_up
@@ -165,7 +178,9 @@ class Search(object):
                     step *= 2
 
             elif (
-                sol_down.compare_to(best_sol) >= 1 and sol_down.compare_to(sol_up) >= 1
+                sol_down.is_valid
+                and sol_down.compare_to(best_sol) >= 1
+                and ((not sol_up.is_valid) or sol_down.compare_to(sol_up) >= 1)
             ):
                 comparison = -1
                 best_sol = sol_down
@@ -180,7 +195,9 @@ class Search(object):
                 comparison = 0
                 step = step / 2
                 if step < min_step_size or (
-                    sol_up.compare_to(best_sol) == 0
+                    sol_up.is_valid
+                    and sol_up.compare_to(best_sol) == 0
+                    and sol_down.is_valid
                     and sol_down.compare_to(best_sol) == 0
                 ):
                     stall_iterations = 1000
@@ -210,6 +227,36 @@ class Search(object):
         else:
             return (None, evaluations)
 
+    def evaluate(self, solutions: List[Solution]):
+        if solutions is None or len(solutions) == 0:
+            logger.error("no tests provided to evaluate")
+            return
+        logger.info(f"re_evaluating {len(solutions)} solutions")
+        self.best = None
+        try:
+            for sol in solutions:
+                taken = False
+                sol.evaluate(self.runs, len(self.all_log))
+                if sol.is_valid and (
+                    self.best is None or sol.compare_to(self.best) >= 1
+                ):
+                    taken = True
+                    self.best = sol
+                self.log_step(sol, self.mutation_type(), taken, 0, "evaluation")
+            self.log_step(self.best, self.mutation_type(), True, 0, "best solution")
+
+        except Exception as e:
+            logger.exception("evaluation terminated:" + str(e), exc_info=True)
+            if self.webdav_dir is not None:
+                file_helper.upload("logs/lib.txt", self.webdav_dir)
+                file_helper.upload("logs/root.txt", self.webdav_dir)
+            raise e
+        if self.webdav_dir is not None:
+            file_helper.upload("logs/lib.txt", self.webdav_dir)
+            file_helper.upload("logs/root.txt", self.webdav_dir)
+
+        self.summary()
+
     def plot(self):
         index = range(len(self.best_log))
 
@@ -230,6 +277,11 @@ class Search(object):
         if self.webdav_dir is not None:
             file_helper.upload(self.dir + "progress.png", self.webdav_dir)
 
+    def summary(self):
+        # TODO: implement a summary report for subclasses
+        # aggregated metrics of the the executed tests grouped by their status (pass, fail, etc.)
+        pass
+
     def log_step(
         self,
         sol: Solution,
@@ -239,10 +291,7 @@ class Search(object):
         desc: str = None,
     ):
         sol.plot(len(self.all_log))
-        log = f'{len(self.all_log)},{round(sol.fitness,3)},{taken},{comparison},{mut.log_str(sol)},"{str([round(fit,1) for fit in sol.fitnesses])}"'
-        if desc != None:
-            log += "," + desc
-        self.csv_logger.info(log)
+        self.update_csv_logs(sol, mut, taken, comparison, desc)
         if self.webdav_dir is not None:
             file_helper.upload(self.csv_logger.filename, self.webdav_dir)
 
@@ -257,3 +306,16 @@ class Search(object):
                 self.best_log.append(self.best.fitness)
 
         self.plot()
+
+    def update_csv_logs(
+        self,
+        sol: Solution,
+        mut: MutationParams,
+        taken: bool,
+        comparison: int,
+        desc: str = None,
+    ):
+        log = f'{len(self.all_log)},{round(sol.fitness,3)},{taken},{comparison},{mut.log_str(sol)},"{str([round(fit,1) for fit in sol.fitnesses])}"'
+        if desc != None:
+            log += "," + desc
+        self.csv_logger.info(log)
