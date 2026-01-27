@@ -74,15 +74,15 @@ Some of the common combination of the following arguments are listed here as sam
 
 - Replicating an autonomous flight in simulation, by finding optimal obstacle properties (box size, position, orientation):
 
-`AGENT=docker python3 surrealist obstacle --id RQ1 --seed experiments/rq1-seed1.yaml -n 1 --budget 100`
+`AGENT=docker python3 surrealist generate obstacle --id RQ1 --seed experiments/rq1-seed1.yaml -n 1 --budget 100`
 
 <!-- `python3 surrealist  obstacle --id RQ1 --obstacle 3 3 3 -7.56 4.54 0 158.8  -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros` -->
 
 - Generating challenging tests for autonomous flight in simulation, by finding optimal additional obstacle properties (box size, position, orientation):
 
-`AGENT=docker python3 surrealist obstacle2 --id RQ2 --seed experiments/rq2-seed.yaml -n 1 --budget 100`
+`AGENT=docker python3 surrealist generate obstacle2 --id RQ2 --seed experiments/rq2-seed.yaml -n 1 --budget 100`
 <!-- 
-`python3 surrealist  obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 --obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros` -->
+`python3 surrealist obstacle2 --id RQ2 --obstacle 3 3 3 -7.56 4.54 0 158.8 --obstacle2 3 3 3 -7.56 24.54 0 158.8 -n 5 --budget 100 --path https://filer.cloudlab.zhaw.ch/remote.php/webdav/ICST/ --mission experiments/case0.plan --log experiments/case0.ulg --params experiments/case0-params.csv --commands experiments/case0-commands.csv  --simulator ros` -->
 
 ## References
 
